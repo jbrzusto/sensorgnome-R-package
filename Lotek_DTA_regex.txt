@@ -1,0 +1,63 @@
+(?sx)
+# This file contains a PCRE-style regular expression for matching interesting parts
+# of Lotek .DTA files.  These files have "\r\n" (DOS-style) line endings, and this
+# regular expression assumes that.
+#
+# You can use this file like so:
+#
+#   f = "myLotekFile.DTA"
+#   txt = readChar(f, nchar=file.info(f)$size, useBytes=TRUE)
+#   res = gregexpr(paste(readLines("Lotek_DTA_regex.txt"), collapse="\r\n"), txt, perl=TRUE)
+#   clen = t(attr(res, "capture.length"))
+#   cstart = t(attr(res, "capture.start"))
+#   parts = clen != 0
+#   pieces = substring(txt, cstart[parts], cstart[parts] + clen[parts] - 1)
+#   names(pieces) = rownames(clen)[1 + ((which(parts)-1) %% nrow(clen))]
+#
+# This leaves the text of each table in an element of pieces, in the order they appear in the .DTA file.
+#
+# Note: don't try to use this on a .DTA file read with paste(readLines(), collapse="\n"),
+# since this has the wrong line endings.  (You could use it on paste(readLines(), collapse="\r\n"),
+# but this is less efficient than the above usage.)
+#
+# The useful components of res will be the tables attr(res[[1]], "capture.start") and attr(res[[1]], "capture.length"),
+# which give the start and length of each component found, with one column for each component type.
+#
+# Note that we use the "possessive" version of non-zero repeats.  i.e. '++' instead of '+',
+# as this prevents huge consumption of stack space for possible backtracking, which we never need here.
+
+# We're looking for an active scan table:
+
+(?:Active[[:blank:]]++scan_table:\r\n
+CHANNEL[[:blank:]]++FREQUENCY[[:blank:]]++STATUS[[:blank:]]++TYPE\r\n
+(?<active_scan>(?:[^\r]++\r\n)++)  ## capture lines until a blank line
+\r\n)
+
+# or an antenna gain table:
+
+ | 
+(?:Antenna[[:blank:]]++Gain\r\n
+(?<antenna_gain>(?:[^\r]++\r\n)++)
+\r\n)
+
+# Or an ID ++ GPS positions table:
+
+|
+(?:ID[[:blank:]]++\+[[:blank:]]++GPS[[:blank:]]++Positions:\r\n\r\n
+[[:blank:]]++Date[[:blank:]]++Time[[:blank:]]++Channel[[:blank:]]++Tag[[:blank:]]++ID[[:blank:]]++Antenna[[:blank:]]++Power[[:blank:]]++Latitude[[:blank:]]++Longitude\r\n
+(?<id_gps>(?:[^\r]++\r\n)++)
+\r\n)
+
+# Or an ID only table:
+
+|
+(?:ID[[:blank:]]++Only[[:blank:]]++Records:\r\n\r\n
+[[:blank:]]++Date[[:blank:]]++Time[[:blank:]]++Channel[[:blank:]]++Tag[[:blank:]]++ID[[:blank:]]++Antenna[[:blank:]]++Power\r\n
+(?<id_only>(?:[^\r]++\r\n)++)
+\r\n)
+
+# Or a noise blank level setting:
+|
+(?:Noise[[:blank:]]++Blank[[:blank:]]++Level:[[:blank]]++
+(?<noise_blank_level>[0-9]++)
+\r\n)
