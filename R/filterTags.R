@@ -3,12 +3,12 @@
 ##   recv - receiver model and serial number
 ##   tags - filtered dataframe of tag detections
 
-filterTags = function(x, tagDB,  confirm = 2, maxSkip = 20, slop = 20, slopExpand = 0) {
+filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpand = 0) {
  ## tagDB must be a "public" version of the tag database, having only proj, id, freq, bi columns
   tmp = tempfile("dtaout")
   write.table(x$tags, tmp, row.names=FALSE, col.names=FALSE, sep=",")
   p = pipe(sprintf('./filter_tags -c %d -b %d -B %d -S %d "%s" "%s"',
-    confirm, slop, slopExpand, maxSkip, tagDB, tmp))
+    confirm, slop, slopExpand, maxMiss, tagDB, tmp))
   out = readLines(p)
   close(p)
 
