@@ -35,7 +35,7 @@ CHANNEL[[:blank:]]++FREQUENCY[[:blank:]]++STATUS[[:blank:]]++TYPE\r\n
 
 # or an antenna gain table:
 
- | 
+| 
 (?:Antenna[[:blank:]]++Gain\r\n
 (?<antenna_gain>(?:[^\r]++\r\n)++)
 \r\n)
@@ -60,4 +60,10 @@ CHANNEL[[:blank:]]++FREQUENCY[[:blank:]]++STATUS[[:blank:]]++TYPE\r\n
 |
 (?:Noise[[:blank:]]++Blank[[:blank:]]++Level:[[:blank]]++
 (?<noise_blank_level>[0-9]++)
+\r\n)
+
+# Or a codeset setting:
+|
+(?:Code[[:blank:]]++Set:[[:blank:]]++
+(?<code_set>[a-zA-Z0-9]++)
 \r\n)
