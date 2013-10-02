@@ -30,7 +30,7 @@ dta2sg = function(
   if (is.null(myproj)) {
     projects = unique(read.csv(tagDB, as.is=TRUE)$proj)
     myproj = select.list(title="Which project is yours?", projects)
-    if (length(myproj) == 0)
+    if (length(myproj) == 0 || nchar(myproj[1]) == 0)
       return()
   }
   

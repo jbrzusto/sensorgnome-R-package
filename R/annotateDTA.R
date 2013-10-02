@@ -3,6 +3,20 @@
 ## and optionally to an html file with a bit of navigation chrome.
 
 annotateDTA = function(DTAfile, tagDB, show=TRUE, html=FALSE, confirm = 3, maxMiss = 20, slop = 4, slopExpand = 0) {
+  if (is.null(DTAfile)) {
+    DTAfile = tclvalue(tkgetOpenFile(title="Choose a Lotek .DTA file for input",
+       filetypes="{{Lotek DTA files} {.DTA}} {{All files} {.*}}"))
+    if (length(DTAfile) == 0 || nchar(DTAfile)[1] == 0)
+      return()
+  }
+  
+  if (is.null(tagDB)) {
+    tagDB = tclvalue(tkgetOpenFile(title="Choose the public tag database file for input",
+       filetypes="{{CSV files} {.csv}} {{All files} {.*}}"))
+    if (length(tagDB) == 0 || nchar(tagDB)[1] == 0)
+      return()
+  }
+  
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
@@ -135,8 +149,8 @@ annotateDTA = function(DTAfile, tagDB, show=TRUE, html=FALSE, confirm = 3, maxMi
 
   ## browse to the annotated HTML version
   if (html && show) {
-    if (substr(htmlname, 1, 1) != "/")
+    if (.Platform$OStype == "unix" && substr(htmlname, 1, 1) != "/")
       htmlname = file.path(getwd(), htmlname)
-    browseURL(paste("file://", htmlname, sep=""))
+    browseURL(paste("file:///", htmlname, sep=""))
   }
 }
