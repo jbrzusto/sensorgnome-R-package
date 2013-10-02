@@ -90,6 +90,7 @@ dta2sg = function(
 
   class(rv$ts) = c("POSIXt", "POSIXct")
   rv$fullID = as.factor(fullID)
+  rv$ant = as.factor(ant)
   ## split output datasets between my and others' projects, or put all in the same file
   
   if (split) {
