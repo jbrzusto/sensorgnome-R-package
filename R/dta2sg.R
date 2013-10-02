@@ -5,7 +5,7 @@ dta2sg = function(
   DTAfile,                                                              ## path to input file
   tagDB,                                                                ## path to public tag database file
   proj = readLines(file.path(dirname(DTAfile), "..", "PROJCODE.TXT")),  ## project code
-  site = readLines(file.path(dirname(DTAfile), "SITECODE.TXT"),)        ## site code
+  site = readLines(file.path(dirname(DTAfile), "SITECODE.TXT")),        ## site code
   outfile = sub("\\.dta$", "_filtered.rds", DTAfile, ignore.case=TRUE), ## output file
   confirm = 3,                                                          ## minimum bursts to confirm a run
   maxMiss = 20,                                                         ## maximum consecutive missing bursts in a run
