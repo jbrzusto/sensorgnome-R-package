@@ -9,12 +9,3 @@ Author: John Brzustowski <jbrzusto@fastmail.fm>
 Depends:
     R (>= 3.0.0)
 License: GPL V2 or later.
-Collate:
-    'annotateDTA.R'
-    'antNameFromLotek.R'
-    'antNameToLotek.R'
-    'dta2sg.R'
-    'filterTags.R'
-    'lotekDTAregex.R'
-    'lotekPowerTodB.R'
-    'readDTA.R'
