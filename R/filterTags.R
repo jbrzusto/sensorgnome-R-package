@@ -7,13 +7,9 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
  ## tagDB must be a "public" version of the tag database, having only proj, id, freq, bi columns
   tmp = tempfile("dtaout")
   write.table(x$tags, tmp, row.names=FALSE, col.names=FALSE, sep=",")
-##  exefile = file.path(path.package("sensorgnome"), "bin", "filter_tags")
-##  if (.Platform$OS.type != "unix")
-##    exefile = paste(exefile, ".exe", sep="")
-  exefile = "./filter_tags.exe"
-  if (! file.exists(exefile))
-    stop("You need to use setwd('c:/path/to/sensorgnome'), for example, to change to the sensorgnome folder")
-  
+  exefile = file.path(path.package("sensorgnome"), "bin", "filter_tags")
+  if (.Platform$OS.type != "unix")
+    exefile = paste(exefile, ".exe", sep="")  
   p = pipe(sprintf('%s -c %d -b %d -B %d -S %d "%s" "%s"',
     exefile, confirm, slop, slopExpand, maxMiss, tagDB, tmp))
   out = readLines(p)
