@@ -2,43 +2,26 @@
 ## file compatible with sensorgnome data.
 
 dta2sg = function(
-  DTAfile = NULL,   ## path to input file
-  tagDB = NULL,     ## path to public tag database file
-  myproj = NULL,    ## project code
-  site = NULL,      ## site code
-  confirm = 3,      ## minimum bursts to confirm a run
-  maxMiss = 20,     ## maximum consecutive missing bursts in a run
-  slop = 4,         ## slop between measured and registered burst intervals, in milliseconds
-  slopExpand = 0,   ## amount slop increases for each missed burst, in milliseconds
-  split = TRUE      ## if TRUE, write separate files for tags from this and from all other projects
+  DTAfile = chooseDTAFile(), ## path to input file
+  tagDB = chooseDBFile(),    ## path to public tag database file
+  myproj = chooseProject(),  ## project code
+  site = NULL,               ## site code
+  confirm = 3,               ## minimum bursts to confirm a run
+  maxMiss = 20,              ## maximum consecutive missing bursts in a run
+  slop = 4,                  ## slop between measured and registered burst intervals, in milliseconds
+  slopExpand = 0,            ## amount slop increases for each missed burst, in milliseconds
+  split = TRUE               ## if TRUE, write separate files for tags from this and from all other projects
   ) {
 
-  if (is.null(DTAfile)) {
-    DTAfile = tclvalue(tkgetOpenFile(title="Choose a Lotek .DTA file for input",
-       filetypes="{{Lotek DTA files} {.DTA}} {{All files} {.*}}"))
-    if (length(DTAfile) == 0 || nchar(DTAfile)[1] == 0)
-      return()
-  }
-  
-  if (is.null(tagDB)) {
-    tagDB = tclvalue(tkgetOpenFile(title="Choose the public tag database file for input",
-       filetypes="{{CSV files} {.csv}} {{All files} {.*}}"))
-    if (length(tagDB) == 0 || nchar(tagDB)[1] == 0)
-      return()
-  }
-  
-  if (is.null(myproj)) {
-    projects = unique(read.csv(tagDB, as.is=TRUE)$proj)
-    myproj = select.list(title="Which project is yours?", projects)
-    if (length(myproj) == 0 || nchar(myproj[1]) == 0)
-      return()
-  }
+  force(DTAfile)
+  force(tagDB)
+  force(myproj)
   
   if (is.null(site)) {
     cat("Please enter the site code for file ", basename(DTAfile), ":\n")
     site = readLines(n=1)
     if (length(site) == 0)
-      return()
+      stop("Cancelled")
   }
 
   dtalines = readLines(DTAfile)

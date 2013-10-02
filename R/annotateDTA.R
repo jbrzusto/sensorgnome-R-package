@@ -2,21 +2,16 @@
 ## write the output to the same file with "_annotated.txt" appended,
 ## and optionally to an html file with a bit of navigation chrome.
 
-annotateDTA = function(DTAfile, tagDB, show=TRUE, html=FALSE, confirm = 3, maxMiss = 20, slop = 4, slopExpand = 0) {
-  if (is.null(DTAfile)) {
-    DTAfile = tclvalue(tkgetOpenFile(title="Choose a Lotek .DTA file for input",
-       filetypes="{{Lotek DTA files} {.DTA}} {{All files} {.*}}"))
-    if (length(DTAfile) == 0 || nchar(DTAfile)[1] == 0)
-      return()
-  }
-  
-  if (is.null(tagDB)) {
-    tagDB = tclvalue(tkgetOpenFile(title="Choose the public tag database file for input",
-       filetypes="{{CSV files} {.csv}} {{All files} {.*}}"))
-    if (length(tagDB) == 0 || nchar(tagDB)[1] == 0)
-      return()
-  }
-  
+annotateDTA = function(
+  DTAfile = chooseDTAFile(),
+  tagDB = chooseDBFile(),
+  show=TRUE,
+  html=FALSE,
+  confirm = 3,
+  maxMiss = 20,
+  slop = 4,
+  slopExpand = 0) {
+
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
@@ -99,12 +94,12 @@ annotateDTA = function(DTAfile, tagDB, show=TRUE, html=FALSE, confirm = 3, maxMi
   }
 
   annotation = sprintf(' Slop: %5.1f ms  Run %6d: %6d/%6d  Master ID: %4d  Proj: %s',
-         out$tags$burstSlop * 1000,
-         out$tags$runID,
-         out$tags$posInRun,
-         out$tags$runLen,
-         out$tags$id,
-         out$tags$tagProj)
+    out$tags$burstSlop * 1000,
+    out$tags$runID,
+    out$tags$posInRun,
+    out$tags$runLen,
+    out$tags$id,
+    out$tags$tagProj)
   extra[out$tags$DTAline] = paste('<span class="DTA_annotation">', annotation, '</span>', sep="")
 
   if (html) {
@@ -128,7 +123,7 @@ annotateDTA = function(DTAfile, tagDB, show=TRUE, html=FALSE, confirm = 3, maxMi
 <a name="TOC">Table of Contents</a>
 </h3>\n', file=htmlf)
 
-  
+    
     tapply(seq(along=pn), pn,
            function(i) {
              cat(paste(sprintf("<li>%s: %s</li>", pn[i][1],
