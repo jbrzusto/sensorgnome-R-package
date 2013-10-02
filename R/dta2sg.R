@@ -4,7 +4,7 @@
 dta2sg = function(
   DTAfile = NULL,   ## path to input file
   tagDB = NULL,     ## path to public tag database file
-  proj = NULL,      ## project code
+  myproj = NULL,    ## project code
   site = NULL,      ## site code
   confirm = 3,      ## minimum bursts to confirm a run
   maxMiss = 20,     ## maximum consecutive missing bursts in a run
@@ -27,10 +27,10 @@ dta2sg = function(
       return()
   }
   
-  if (is.null(proj)) {
+  if (is.null(myproj)) {
     projects = unique(read.csv(tagDB, as.is=TRUE)$proj)
-    proj = select.list(title="Which project is yours?", sprintf("%-30s", projects))
-    if (length(proj) == 0)
+    myproj = select.list(title="Which project is yours?", projects)
+    if (length(myproj) == 0)
       return()
   }
   
@@ -82,20 +82,22 @@ dta2sg = function(
     lat = out$tags$lat,
     lon = out$tags$lon,
     depYear = as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")),
-    proj = proj,
+    proj = myproj,
     site = site,
     recv = out$recv,
     fullID = sprintf("%s#%3d@%6.3f", out$tags$tagProj, out$tags$id %% 1000, out$tags$antFreq)
     )
 
+  class(rv$ts) = c("POSIXt", "POSIXct")
+  rv$fullID = as.factor(fullID)
   ## split output datasets between my and others' projects, or put all in the same file
   
   if (split) {
     outfile = sub("\\.dta$", "_filtered_my_tags.rds", DTAfile, ignore.case=TRUE) ## output file
-    saveRDS(subset(rv, tagProj == myProj), outfile)
+    saveRDS(subset(rv, tagProj == myproj), outfile)
     outfile2 = sub("\\.dta$", "_filtered_their_tags.rds", DTAfile, ignore.case=TRUE) ## output file
-    saveRDS(subset(rv, tagProj != myProj), outfile2)
-    cat(sprintf("Wrote your tags to file:\n   %s\nand tags from other projects to file:\n%s\n", outfile, outfile2))
+    saveRDS(subset(rv, tagProj != myproj), outfile2)
+    cat(sprintf("Wrote your tags to file:\n   %s\nand tags from other projects to file:\n   %s\n", outfile, outfile2))
   } else {
     outfile = sub("\\.dta$", "_filtered_all_tags.rds", DTAfile, ignore.case=TRUE) ## output file
     saveRDS(rv, outfile)
