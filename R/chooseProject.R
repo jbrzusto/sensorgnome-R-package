@@ -5,7 +5,7 @@ chooseProject = function() {
     if (length(p) == 0 || nchar(p[1]) == 0)
       stop("Cancelled")
   } else {
-    p = myProject
+    p = sensorgnome.project
   }
   sensorgnome.project <<- p
   return(p)
