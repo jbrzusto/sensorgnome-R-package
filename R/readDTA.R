@@ -5,10 +5,12 @@
 ##     ts      - numeric GMT timestamp
 ##     id      - integer, no 999s
 ##     ant     - factor - Lotek antenna name
-##     sig     - signal strength, converted from Lotek units (0..255) to relative dB
+##     sig     - signal strength, in raw Lotek units (0..255)
 ##     lat     - if available, NA otherwise
 ##     lon     - if available, NA otherwise
+##     dtaline - line in the original .DTA file for this detection
 ##     antfreq - antenna listening frequency, in MHz
+##     gain    - gain setting in place during this detection (0..99)
 ##     codeset - factor - Lotek codset name
 ##   pieces: chunks of text of various types
 ##   piece.lines.before: number of lines before pieces of various types
@@ -99,8 +101,8 @@ readDTA = function(filename="", lines=NULL) {
              if (piece.name == "id_only")
                tab = cbind(tab, 999, 999)  ## lat and lon not available
              
+             names(tab) = c("ts", "chan", "id", "ant", "sig", "lat", "lon")
              tab$dtaline = piece.lines.before[ip] + 1:nrow(tab)
-             names(tab) = c("ts", "chan", "id", "ant", "sig", "lat", "lon", "dtaline")
              tab$ant = as.character(tab$ant)
 
              ## fill in the appropriate gain value, or a best guess
@@ -132,8 +134,8 @@ readDTA = function(filename="", lines=NULL) {
              ## get frequency from latest frequency table
              tab$antfreq = freq.tab[as.character(tab$chan)]
 
-             ## get signal strength using latest gain table
-             tab$sig = lotekPowerTodB(tab$sig, gain.tab[tab$ant])
+             ## report the gain setting in use
+             tab$gain = gain.tab[tab$ant]
 
              ## fill in the current codeset
              tab$codeset = factor(1, labels=codeset)

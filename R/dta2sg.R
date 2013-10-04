@@ -31,8 +31,8 @@ dta2sg = function(
   ## generate the SG-compatible dataframe:
 
   ## out$tags has these columns:
-  ##  [1] "ts"        "ant"       "id"        "tagProj"   "runID"     "posInRun"  "sig"       "burstSlop" "DTAline"   "lat"       "lon"      
-  ## [12] "antFreq"   "runLen"
+  ##  [1] "ts"        "ant"       "id"        "tagProj"   "runID"     "posInRun"  "sig"       "burstSlop" "dtaline"   "lat"       "lon"      
+  ## [12] "antFreq"   "gain"      "runLen"
 
   ## and we need these:
 
@@ -40,7 +40,7 @@ dta2sg = function(
   ##  [7] "sig"       "sigsd"     "noise"     "runID"     "posInRun"  "slop"     
   ## [13] "burstSlop" "hitRate"   "antFreq"   "tsOrig"    "bootnum"   "runLen"   
   ## [19] "id"        "lat"       "lon"       "alt"       "depYear"   "proj"     
-  ## [25] "site"      "recv"      "fullID"   
+  ## [25] "site"      "recv"      "fullID"   "gain"
 
   rv = data.frame(
     ant = out$tags$ant,
@@ -68,7 +68,8 @@ dta2sg = function(
     proj = myproj,
     site = site,
     recv = out$recv,
-    fullID = sprintf("%s#%3d@%6.3f", out$tags$tagProj, out$tags$id %% 1000, out$tags$antFreq)
+    fullID = sprintf("%s#%3d@%6.3f", out$tags$tagProj, out$tags$id %% 1000, out$tags$antFreq),
+    gain = out$tags$gain
     )
 
   class(rv$ts) = c("POSIXt", "POSIXct")
