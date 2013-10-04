@@ -12,6 +12,9 @@ annotateDTA = function(
   slop = 4,
   slopExpand = 0) {
 
+  force(DTAfile)
+  force(tagDB)
+  
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)

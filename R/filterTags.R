@@ -19,6 +19,18 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
 
   out = read.csv(textConnection(out), as.is=TRUE)
 
+  if (nrow(out) == 0) {
+    stop(sprintf(
+"There were no runs of tags found in this file under the current filtering criteria:
+   confirm = %d
+   maxMiss = %d
+   slop = %.2f ms
+   slopExpand = %.2f ms
+   database = %s
+",
+      confirm, maxMiss, slop, slopExpand, basename(tagDB)))
+  }
+  
   ## re-number runs in order from 1
   out$runID = as.numeric(as.factor(out$runID))
 
