@@ -42,7 +42,7 @@ annotateDTA = function(
   }
   
   info = sprintf('
-  This annotated Lotek .DTA file was created by annotateDTA() in R package SG
+  This annotated Lotek .DTA file was created by annotateDTA() in R package sensorgnome
   from http://sensorgnome.org.
 
   Filtering Parameters
