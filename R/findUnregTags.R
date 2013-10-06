@@ -83,7 +83,7 @@ findUnregTags = function(
       f = file(tagDB, "a")
       edf = edf[addToDB,]
       records = paste(sprintf('"%s",%d,%.3f,%f\n', proj, edf$id, edf$antfreq, edf$bi), collapse="")
-      cat(records,"\n", file=f)
+      cat(records, file=f)
       close(f)
       cat("Appended records:\n",records,"\nto file ", tagDB, "\n")
       return(edf)
