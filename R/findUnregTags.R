@@ -43,7 +43,7 @@ findUnregTags = function(
     bis = tdb$bi[tdb$id %% 1000 == tt$id[i] & tdb$tagFreq == tt$antfreq[i]]
     ebi = tt$dt[i]
     for (bi in bis) {
-      if (abs(ebi - bi * round(ebi/bi)) < slop / 1000) {
+      if (abs(ebi - bi * round(ebi/bi)) <= slop / 1000) {
         keep[i] = FALSE
         break
       }
@@ -68,12 +68,13 @@ findUnregTags = function(
         return(stats)
       else
         return(NULL)
-    })
-  
-  est = est[sapply(est, function(x) ! is.null(x))]
+    }, simplify=FALSE)
+
+  if (length(est) > 0)
+    est = est[sapply(est, function(x) ! is.null(x))]
 
   if (length(est) > 0) {
-    edf = as.data.frame(cbind(as.numeric(names(est)), do.call(rbind, est)))
+    edf = as.data.frame(cbind(as.numeric(names(est)), do.call(rbind, as.list(est))))
     names(edf) = c("id", "antfreq", "bi", "bisd", "count")
     choices = sprintf("Tag # %d @ %.3f MHz detected %d times; mean burst interval %.3f s +/- %.1f ms", edf$id, edf$antfreq, edf$count, edf$bi, edf$bisd * 1000)
     addToDB = match(select.list(title="Which tags would you like to add to the DB?", choices, multiple=TRUE), choices)
