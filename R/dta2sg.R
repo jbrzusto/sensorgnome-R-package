@@ -23,30 +23,43 @@ dta2sg = function(
     if (length(site) == 0)
       stop("Cancelled")
   }
-
+  
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
-
+  
   ## generate the SG-compatible dataframe:
 
   ## out$tags has these columns:
-  ##  [1] "ts"        "ant"       "id"        "tagProj"   "runID"     "posInRun"  "sig"       "burstSlop" "dtaline"   "lat"       "lon"      
-  ## [12] "antFreq"   "gain"      "runLen"
-
+  ## [1] "ts"        "ant"       "id"        "tagProj"   "runID"     "posInRun"  "sig"       "burstSlop" "DTAline"   "lat"       "lon"      
+  ## [12] "antFreq"   "gain"      "runLen"   
+  ## where
+  ## id looks like: Lorng#69@166.380:4.9
+  ## i.e. PROJ#TAGID@FREQ:BI
+  
   ## and we need these:
 
-  ##  [1] "ant"       "ts"        "tagProj"   "tagID"     "freq"      "freqsd"   
+  ##  [1] "ant"       "ts"        "tagProj"   "id"        "freq"      "freqsd"   
   ##  [7] "sig"       "sigsd"     "noise"     "runID"     "posInRun"  "slop"     
   ## [13] "burstSlop" "hitRate"   "antFreq"   "tsOrig"    "bootnum"   "runLen"   
-  ## [19] "id"        "lat"       "lon"       "alt"       "depYear"   "proj"     
-  ## [25] "site"      "recv"      "fullID"   "gain"
+  ## [19] "lat"       "lon"       "alt"       "depYear"   "proj"      "site"
+  ## [25] "recv"      "fullID"   "gain"
 
+  ## where fullID is as ID above
+
+  parts = regexpr(pattern="(?:(?<proj>[^#]+))(?:#)(?:(?<id>[^@]+))(?:@)(?:(?<freq>[^:]+))(?::)(?:(?<bi>.+))$", out$tags$id, perl=TRUE)
+
+  lid = substr(out$tags$id, tmp<-attr(parts, "capture.start")[,"id"], attr(parts, "capture.length")[,"id"] + tmp - 1)
+
+  tagProj = substr(out$tags$id, tmp<-attr(parts, "capture.start")[,"proj"], attr(parts, "capture.length")[,"proj"] + tmp - 1)
+
+
+          
   rv = data.frame(
     ant = out$tags$ant,
     ts = out$tags$ts,
-    tagProj = out$tags$tagProj,
-    tagID = out$tags$id,
+    tagProj = tagProj,
+    id = lid,
     freq = NA,
     freqsd = NA,
     sig = out$tags$sig,
@@ -61,15 +74,15 @@ dta2sg = function(
     tsOrig = out$tags$ts,
     bootnum = NA,
     runLen = out$tags$runLen,
-    id = out$tags$id %% 1000,
     lat = out$tags$lat,
     lon = out$tags$lon,
     depYear = as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")),
     proj = myproj,
     site = site,
     recv = out$recv,
-    fullID = sprintf("%s#%3d@%6.3f", out$tags$tagProj, out$tags$id %% 1000, out$tags$antFreq),
-    gain = out$tags$gain
+    fullID = out$tags$id,
+    gain = out$tags$gain,
+    dbm = lotekPowerTodBm(out$tags$sig, out$tags$gain)
     )
 
   class(rv$ts) = c("POSIXt", "POSIXct")
