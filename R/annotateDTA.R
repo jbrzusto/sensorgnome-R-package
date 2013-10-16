@@ -3,8 +3,8 @@
 ## and optionally to an html file with a bit of navigation chrome.
 
 annotateDTA = function(
-  DTAfile = chooseDTAFile(),
-  tagDB = chooseDBFile(),
+  DTAfile,
+  tagDB,
   show=TRUE,
   html=FALSE,
   confirm = 3,
@@ -12,8 +12,8 @@ annotateDTA = function(
   slop = 4,
   slopExpand = 0) {
 
-  force(DTAfile)
-  force(tagDB)
+  DTAfile = chooseDTAFile(DTAfile)
+  tagDB = choose(tagDB)
   
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)

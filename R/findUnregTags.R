@@ -6,12 +6,12 @@
 ## - among remaining table entries, if any seem large, report them
 
 findUnregTags = function(
-  DTAfile = chooseDTAFile(), ## path to input file
-  tagDB = chooseDBFile(),    ## path to public tag database file
-  slop = 4                   ## slop for comparison to tag database BI
+  DTAfile, ## path to input file
+  tagDB,   ## path to public tag database file
+  slop = 4 ## slop for comparison to tag database BI
   ) {
-  force(DTAfile)
-  force(tagDB)
+  DTAfile = chooseDTAFile(DTAfile)
+  tagDB = chooseDBFile(tagDB)
 
   x = subset(readDTA(DTAfile)$tags, id != 999)
 
