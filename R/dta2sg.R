@@ -31,20 +31,20 @@ dta2sg = function(
   ## generate the SG-compatible dataframe:
 
   ## out$tags has these columns:
-  ## [1] "ts"        "ant"       "id"        "tagProj"   "runID"     "posInRun"  "sig"       "burstSlop" "DTAline"   "lat"       "lon"      
-  ## [12] "antFreq"   "gain"      "runLen"   
+  ## [1] "ts"        "ant"       "id"        "runID"     "posInRun"  "sig"       "burstSlop" "DTAline"   "lat"       "lon"      
+  ## [12] "antFreq"   "gain"     "runLen"
   ## where
   ## id looks like: Lorng#69@166.380:4.9
   ## i.e. PROJ#TAGID@FREQ:BI
   
   ## and we need these:
 
-  ##  [1] "ant"       "ts"        "tagProj"   "id"        "freq"      "freqsd"   
-  ##  [7] "sig"       "sigsd"     "noise"     "runID"     "posInRun"  "slop"     
-  ## [13] "burstSlop" "hitRate"   "antFreq"   "tsOrig"    "bootnum"   "runLen"   
-  ## [19] "lat"       "lon"       "alt"       "depYear"   "proj"      "site"
-  ## [25] "recv"      "fullID"   "gain"
-
+##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"      
+##  [7] "sigsd"     "noise"     "runID"     "posInRun"  "slop"      "burstSlop"
+## [13] "antFreq"   "tsOrig"    "bootnum"   "runLen"    "id"        "tagProj"  
+## [19] "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
+## [25] "site"      "recv"      "sp"        "label"
+  
   ## where fullID is as ID above
 
   parts = regexpr(pattern="(?:(?<proj>[^#]+))(?:#)(?:(?<id>[^@]+))(?:@)(?:(?<freq>[^:]+))(?::)(?:(?<bi>.+))$", out$tags$id, perl=TRUE)
@@ -58,8 +58,7 @@ dta2sg = function(
   rv = data.frame(
     ant = out$tags$ant,
     ts = out$tags$ts,
-    tagProj = tagProj,
-    id = lid,
+    fullID = out$tags$id,
     freq = NA,
     freqsd = NA,
     sig = out$tags$sig,
@@ -69,18 +68,20 @@ dta2sg = function(
     posInRun = out$tags$posInRun,
     slop = NA,
     burstSlop = out$tags$burstSlop,
-    hitRate = NA,
     antFreq = out$tags$antFreq,
     tsOrig = out$tags$ts,
     bootnum = NA,
     runLen = out$tags$runLen,
+    id = lid,
+    tagProj = tagProj,
+    nomFreq = out$tags$antFreq,
     lat = out$tags$lat,
     lon = out$tags$lon,
+    alt = NA,
     depYear = as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")),
     proj = myproj,
     site = site,
     recv = out$recv,
-    fullID = out$tags$id,
     gain = out$tags$gain,
     dbm = lotekPowerTodBm(out$tags$sig, out$tags$gain)
     )
