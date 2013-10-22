@@ -1,1 +1,1 @@
-export (annotateDTA, antNameFromLotek, antNameToLotek, dta2sg, filterTags, lotekDTAregex, lotekPowerTodBm, readDTA, chooseDBFile, chooseDTAFile, chooseProject, findUnregTags)
+export (annotateDTA, antNameFromLotek, antNameToLotek, dta2sg, filterTags, lotekDTAregex, lotekPowerTodBm, readDTA, chooseDBFile, chooseDTAFile, chooseProject, findUnregTags, sgPowerTodBm, createRawDepDB, createCookedDepDB, publicDTA)
