@@ -2,11 +2,9 @@
 ##
 
 depInfo = function(proj, id, freq, ts, year = 2013, info="spcd") {
+  ## e.g.  depInfo("Taylr", c(481, 481, 518, 518), 166.38, ymd(c("2013-06-01", "2013-08-17", "2013-04-16", "2013-08-19")), info=c("spcd", "age"))
+
   ## proj, id, freq are vectors identifying the tag; recycled as necessary
-  
-  ## e.g. proj = "Taylr"
-  ##      id   = c(518, 481, 483)
-  ##      freq = 166.38
 
   ## ts is a vector of timestamps, of the same length as nrows(cbind(proj,id,freq))
 
@@ -15,30 +13,9 @@ depInfo = function(proj, id, freq, ts, year = 2013, info="spcd") {
   ## info is a character vector of column names desired from the deployment,
   ## chosen from:
 
-  ##       proj
-  ##       tagFreq
-  ##       tagLife
-  ##       tagID
-  ##       gpsId
-  ##       pttId
-  ##       spcd
-  ##       bandNumber
-  ##       startSite
-  ##       startLat
-  ##       startLong
-  ##       bandColour
-  ##       bandId
-  ##       wingTag
-  ##       age
-  ##       sex
-  ##       mass
-  ##       billDepth
-  ##       culmen
-  ##       head
-  ##       tarsus
-  ##       wing
-  ##       tail
-  ##       startTS
+  ##       proj tagFreq tagLife tagID gpsId pttId spcd bandNumber
+  ##       startSite startLat startLong bandColour bandId wingTag age
+  ##       sex mass billDepth culmen head tarsus wing tail startTS
   ##       stopTS
   
   ## returns a dataframe with the requested columns, and one row per input,
@@ -53,20 +30,20 @@ depInfo = function(proj, id, freq, ts, year = 2013, info="spcd") {
   library(RSQLite)
   con = dbConnect("SQLite", sprintf("/SG/%d_tag_deployments.sqlite", year))
 
+  ## create a temporary in-memory database to hold the temporary table for the join
+  sql(con, "attach ':memory:' as mem")
+
   ## write the query labels and timestamps to a temporary db table for doing a join
 
   key = paste(proj, '#', id, '@', freq, sep="")
-  dbWriteTable(con, "temp", data.frame(key=I(key), ts=ts), row.names=FALSE, overwrite=TRUE)
+  dbWriteTable(con, "mem.temp", data.frame(key=I(key), ts=ts), row.names=FALSE, overwrite=TRUE)
 
   ## encode requested columns into the query
 
   outCols = paste(sprintf("tagDeps.%s as %s", info, info), collapse=",")
   
   ## do the join
-  res = sql(con, "select temp.rowID as i, %s from temp left join tagDeps on temp.key = tagDeps.projIdFreq where temp.ts >= tagDeps.startTS and (temp.ts <= tagDeps.stopTS or tagDeps.stopTS is null)", outCols);
-
-  ## drop the temporary table
-  sql(con, "drop table temp")
+  res = sql(con, "select mem.temp.rowID as i, %s from mem.temp left join tagDeps on mem.temp.key = tagDeps.projIdFreq where mem.temp.ts >= tagDeps.startTS and (mem.temp.ts <= tagDeps.stopTS or tagDeps.stopTS is null)", outCols);
 
   ## if the result has fewer rows than the input, we need to pad with NA rows
 
