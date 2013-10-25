@@ -6,7 +6,7 @@
 filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpand = 0) {
  ## tagDB must be a "public" version of the tag database, having only proj, id, freq, bi columns
   tmp = tempfile("dtaout")
-  write.table(x$tags, tmp, row.names=FALSE, col.names=FALSE, sep=",")
+  write.table(x$tags[!is.na(x$tags[,1]),], tmp, row.names=FALSE, col.names=FALSE, sep=",")
   exefile = file.path(path.package("sensorgnome"), "bin", "filter_tags")
   if (.Platform$OS.type != "unix")
     exefile = paste(exefile, ".exe", sep="")  
