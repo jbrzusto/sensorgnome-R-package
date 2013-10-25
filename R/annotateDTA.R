@@ -13,14 +13,14 @@ annotateDTA = function(
   slopExpand = 0) {
 
   DTAfile = chooseDTAFile(DTAfile)
-  tagDB = choose(tagDB)
+  tagDB = chooseDBFile(tagDB)
   
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
   
   extra = rep("", length(dtalines))
-  extra[out$tags$DTAline] = sprintf(" Run %6d: %6d/%6d  Proj: %s", out$tags$runID, out$tags$posInRun, out$tags$runLen, out$tags$tagProj)
+  extra[out$tags$DTAline] = sprintf(" Run %6d: %6d/%6d  Tag: %s", out$tags$runID, out$tags$posInRun, out$tags$runLen, out$tags$id)
   txt = file(paste(DTAfile, "_annotated.txt", sep=""), "w")
   if (html) {
     htmlname = paste(DTAfile, "_annotated.html", sep="")
@@ -96,13 +96,12 @@ annotateDTA = function(
     cat (info, file=htmlf)
   }
 
-  annotation = sprintf(' Slop: %5.1f ms  Run %6d: %6d/%6d  Master ID: %4d  Proj: %s',
+  annotation = sprintf(' Slop: %5.1f ms  Run %6d: %6d/%6d  Tag: %s',
     out$tags$burstSlop * 1000,
     out$tags$runID,
     out$tags$posInRun,
     out$tags$runLen,
-    out$tags$id,
-    out$tags$tagProj)
+    out$tags$id)
   extra[out$tags$DTAline] = paste('<span class="DTA_annotation">', annotation, '</span>', sep="")
 
   if (html) {
@@ -147,7 +146,7 @@ annotateDTA = function(
 
   ## browse to the annotated HTML version
   if (html && show) {
-    if (.Platform$OStype == "unix" && substr(htmlname, 1, 1) != "/")
+    if (.Platform$OS.type == "unix" && substr(htmlname, 1, 1) != "/")
       htmlname = file.path(getwd(), htmlname)
     browseURL(paste("file:///", htmlname, sep=""))
   }

@@ -26,16 +26,16 @@ CHANNEL[[:blank:]]++FREQUENCY[[:blank:]]++STATUS[[:blank:]]++TYPE\\n
 |
 (?:ID[[:blank:]]++\\+[[:blank:]]++GPS[[:blank:]]++Positions:\\n\\n
 [[:blank:]]++Date[[:blank:]]++Time[[:blank:]]++Channel[[:blank:]]++Tag[[:blank:]]++ID[[:blank:]]++Antenna[[:blank:]]++Power[[:blank:]]++Latitude[[:blank:]]++Longitude\\n
-(?<id_gps>(?:[^\\n]++\\n)++)
-\\n)
+(?<id_gps>(?:[0-9][^\\n]++\\n{1,2})++)
+)
 
 # Or an ID only table:
 
 |
 (?:ID[[:blank:]]++Only[[:blank:]]++Records:\\n\\n
 [[:blank:]]++Date[[:blank:]]++Time[[:blank:]]++Channel[[:blank:]]++Tag[[:blank:]]++ID[[:blank:]]++Antenna[[:blank:]]++Power\\n
-(?<id_only>(?:[^\\n]++\\n)++)
-\\n)
+(?<id_only>(?:[0-9][^\\n]++\\n{1,2})++)
+)
 
 # Or a codeset identifier:
 
