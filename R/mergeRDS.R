@@ -152,18 +152,19 @@ mergeRDS = function(year) {
 
 
   dbGetQuery(con, paste("attach \"", finalDB, "\" as final", sep=""))
-  dgGetQuery(con, "create table final.tags as select * from tags")
-  dbGetQuery(con, "create index final.tags_ts on final.tags ( ts )")
+  dbGetQuery(con, "create table final.tags as select * from tags")
+
+  dbGetQuery(con, "create index final.tags_ts on tags ( ts )")
   cat("created index tags_ts\n")
-  dbGetQuery(con, "create index final.tags_fullID on final.tags ( fullID )")
+  dbGetQuery(con, "create index final.tags_fullID on tags ( fullID )")
   cat("created index tags_fullID\n")
-  dbGetQuery(con, "create index final.tags_idproj on final.tags ( id, tagProj )")
+  dbGetQuery(con, "create index final.tags_idproj on tags ( id, tagProj )")
   cat("created index tags_idproj\n")
-  dbGetQuery(con, "create index final.tags_fullSite on final.tags ( fullSite )")
+  dbGetQuery(con, "create index final.tags_fullSite on tags ( fullSite )")
   cat("created index tags_fullSite\n")
-  dbGetQuery(con, "create index final.tags_tagProj on final.tags ( tagProj )")
+  dbGetQuery(con, "create index final.tags_tagProj on tags ( tagProj )")
   cat("created index tags_tagProj\n")
-  dbGetQuery(con, "create index final.tags_id on final.tags ( id )")
+  dbGetQuery(con, "create index final.tags_id on tags ( id )")
   cat("created index tags_id\n")
   dbGetQuery(con, "detach database final")
 
