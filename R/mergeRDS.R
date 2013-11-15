@@ -34,15 +34,55 @@ mergeRDS = function(year) {
 
   ## create / connect to database
   
-  con = dbConnect("SQLite", sprintf("/SG/%d_alltags.sqlite", year))
+##  con = dbConnect("SQLite", sprintf("/media/SG_Data/new_%d_alltags.sqlite", year))
+  finalDB = sprintf("/SG/new_%d_alltags.sqlite", year)
+  con = dbConnect("SQLite", ":memory:")
 
+  dbGetQuery(con, "pragma journal_mode=truncate;")
+  dbGetQuery(con, "pragma synchronous=2;")
+  dbGetQuery(con, "pragma locking_mode=exclusive;")
+  
   dbGetQuery(con, "drop table if exists tags")
+  dbGetQuery(con, "CREATE TABLE tags 
+( ant TEXT,
+ ts REAL,
+ fullID TEXT,
+ freq REAL,
+ freqsd REAL,
+ sig REAL,
+ sigsd REAL,
+ noise REAL,
+ runID REAL,
+ posInRun INTEGER,
+ slop REAL,
+ burstSlop REAL,
+ antFreq REAL,
+ tsOrig REAL,
+ bootnum INTEGER,
+ runLen INTEGER,
+ id REAL,
+ tagProj TEXT,
+ nomFreq REAL,
+ lat REAL,
+ lon REAL,
+ alt REAL,
+ depYear INTEGER,
+ proj TEXT,
+ site TEXT,
+ recv TEXT,
+ sp TEXT,
+ label TEXT,
+ fullSite TEXT,
+ gain REAL,
+ dbm REAL,
+ crossFreq INTEGER,
+ tagFreq REAL 
+ )")
 
   ## target column names
 
   colNames = c("ant", "ts", "fullID", "freq", "freqsd", "sig", "sigsd", "noise",  "runID", "posInRun", "slop", "burstSlop", "antFreq", "tsOrig",  "bootnum", "runLen", "id", "tagProj", "nomFreq", "lat", "lon",  "alt", "depYear", "proj", "site", "recv", "sp", "label", "fullSite", "gain", "dbm", "crossFreq", "tagFreq" )
   
-  append = FALSE
   nrows = 0
   cumRunID = 0
   for (f in files) {
@@ -101,20 +141,31 @@ mergeRDS = function(year) {
     ## write table with columns in correct order, since dbWriteTable makes
     ## no attempt to match column names between existing DB table and table
     ## being written
-    
-    dbWriteTable(con, "tags", x[, match(colNames, names(x))], row.names=FALSE, append=append)
-    append = TRUE
+
+    dbWriteTable(con, "tags", x[, match(colNames, names(x))], row.names=FALSE, append=TRUE)
+
+    print(dbGetQuery(con, "pragma integrity_check"))
+
     nrows = nrows + nrow(x)
     cat (f, " ", nrows, "\n")
   }
 
- dbGetQuery(con, "
-create index tags_ts on tags ( ts );
-create index tags_fullID on tags ( fullID );
-create index tags_idproj on tags ( id, tagProj );
-create index tags_fullSite on tags ( fullSite );
-create index tags_tagProj on tags ( tagProj );
-")
+
+  dbGetQuery(con, paste("attach \"", finalDB, "\" as final", sep=""))
+  dgGetQuery(con, "create table final.tags as select * from tags")
+  dbGetQuery(con, "create index final.tags_ts on final.tags ( ts )")
+  cat("created index tags_ts\n")
+  dbGetQuery(con, "create index final.tags_fullID on final.tags ( fullID )")
+  cat("created index tags_fullID\n")
+  dbGetQuery(con, "create index final.tags_idproj on final.tags ( id, tagProj )")
+  cat("created index tags_idproj\n")
+  dbGetQuery(con, "create index final.tags_fullSite on final.tags ( fullSite )")
+  cat("created index tags_fullSite\n")
+  dbGetQuery(con, "create index final.tags_tagProj on final.tags ( tagProj )")
+  cat("created index tags_tagProj\n")
+  dbGetQuery(con, "create index final.tags_id on final.tags ( id )")
+  cat("created index tags_id\n")
+  dbGetQuery(con, "detach database final")
 
   dbDisconnect(con)
 }
