@@ -2,7 +2,7 @@ Package: sensorgnome
 Title: Tools for the sensorgnome project.
 Description: Process data from sensorgnomes and other devices such as Lotek telemetry receivers.
 URL: https://sensorgnome.org/Post-Processing_Telemetry_Data
-Version: 1.0.10
+Version: 1.0.11
 Maintainer: John Brzustowski <jbrzusto@fastmail.fm>
 Author: John Brzustowski <jbrzusto@fastmail.fm>
 Depends: R (>= 3.0.0), tcltk, RSQLite

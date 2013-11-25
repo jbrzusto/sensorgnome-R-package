@@ -11,20 +11,12 @@
 ## site - name of site (within project)
 ## recv - receiver serial number
 ## ts - timestamp
-##
+
 
 makeRecvStatusDB = function(year, quiet=TRUE) {
   library(RSQLite)
   library(lubridate)
-  projs = dir(sprintf("/SG/contrib/%d", year),
-    pattern = sprintf("^[[:alpha:]]+$", year),
-    full.names = TRUE)
-  sites = dir(projs,
-    pattern = "^[[:alpha:]_]+$",
-    full.names=TRUE)
-  files = dir(sites,
-    pattern = "^2013_[[:alpha:]0-9_]+\\.sqlite$",
-    full.names=TRUE)
+  files = getAllSiteFiles(year, ".sqlite")
 
   db = sprintf("/SG/%d_receiver_status.sqlite", year)
   con = dbConnect("SQLite", db)
