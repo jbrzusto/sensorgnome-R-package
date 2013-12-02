@@ -4,7 +4,7 @@
 ## on either different receivers, or different antennas of a single
 ## receiver
 
-findSimul = function(x) {
+findSimul = function(x, sameRecvOK=TRUE) {
   ord = order(x$ts, x$id, x$recv, x$ant)
   ts = as.numeric(x$ts)[ord]
   id = x$id[ord]
@@ -16,9 +16,9 @@ findSimul = function(x) {
   n = nrow(x)
   k = 1L
 
-  simul = matrix(integer(), nrow=nrow(x), ncol=2)
+  simul = matrix(integer(), nrow=n, ncol=2)
   while (j <= n) {
-    if (id[i] == id[j] && ts[j] - ts[i] <= 2 && (recv[j] != recv[i] || ant[i] != ant[j])) {
+    if (id[i] == id[j] && ts[j] - ts[i] <= 2 && (recv[j] != recv[i] || (sameRecvOK && ant[i] != ant[j]))) {
       simul[k, 1L] = i
       simul[k, 2L] = j
       k = k + 1L
