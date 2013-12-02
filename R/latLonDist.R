@@ -50,7 +50,7 @@ latLonDist = function(lat1, lon1, lat2, lon2) {
       sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma
       cosSqAlpha = 1 - sinAlpha*sinAlpha
       cos2SigmaM = cosSigma - 2*sinU1*sinU2 / cosSqAlpha
-      if (isNaN(cos2SigmaM))
+      if (is.nan(cos2SigmaM))
         cos2SigmaM = 0  ## equatorial line: cosSqAlpha=0 (§6)
       C = f/16*cosSqAlpha*(4+f*(4-3*cosSqAlpha))
       lambdaP = lambda
