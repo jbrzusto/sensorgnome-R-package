@@ -158,7 +158,7 @@ mergeRDS = function(year) {
     cat (f, " ", nrows, "\n")
 
     dbDisconnect(con)
-    mergeQuery = c(mergeQuery, sprintf("attach database '%s' as site; insert into tags select * from site.tags; detach database site;pragma integrity_check\n", siteSQLiteFile))
+    mergeQuery = c(mergeQuery, sprintf("attach database '%s' as site;\ninsert into tags select * from site.tags;\ndetach database site;\npragma integrity_check;\n", siteSQLiteFile))
   }
 
 
