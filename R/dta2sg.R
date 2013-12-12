@@ -27,68 +27,10 @@ dta2sg = function(
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
+
+  ## use the year of the first detection as the deployment year.
+  rv = SGify(out$tags, as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")), myproj, site, out$recv)
   
-  ## generate the SG-compatible dataframe:
-
-  ## out$tags has these columns:
-  ## [1] "ts"        "ant"       "id"        "runID"     "posInRun"  "sig"       "burstSlop" "DTAline"   "lat"       "lon"      
-  ## [12] "antFreq"   "gain"     "runLen"
-  ## where
-  ## id looks like: Lorng#69@166.380:4.9
-  ## i.e. PROJ#TAGID@FREQ:BI
-  
-  ## and we need these:
-
-##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"      
-##  [7] "sigsd"     "noise"     "runID"     "posInRun"  "slop"      "burstSlop"
-## [13] "antFreq"   "tsOrig"    "bootnum"   "runLen"    "id"        "tagProj"  
-## [19] "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
-## [25] "site"      "recv"      "sp"        "label"
-  
-  ## where fullID is as ID above
-
-  parts = regexpr(pattern="(?:(?<proj>[^#]+))(?:#)(?:(?<id>[^@]+))(?:@)(?:(?<freq>[^:]+))(?::)(?:(?<bi>.+))$", out$tags$id, perl=TRUE)
-
-  lid = substr(out$tags$id, tmp<-attr(parts, "capture.start")[,"id"], attr(parts, "capture.length")[,"id"] + tmp - 1)
-
-  tagProj = substr(out$tags$id, tmp<-attr(parts, "capture.start")[,"proj"], attr(parts, "capture.length")[,"proj"] + tmp - 1)
-
-
-          
-  rv = data.frame(
-    ant = out$tags$ant,
-    ts = out$tags$ts,
-    fullID = out$tags$id,
-    freq = NA,
-    freqsd = NA,
-    sig = out$tags$sig,
-    sigsd = NA,
-    noise = NA,
-    runID = out$tags$runID,
-    posInRun = out$tags$posInRun,
-    slop = NA,
-    burstSlop = out$tags$burstSlop,
-    antFreq = out$tags$antFreq,
-    tsOrig = out$tags$ts,
-    bootnum = NA,
-    runLen = out$tags$runLen,
-    id = lid,
-    tagProj = tagProj,
-    nomFreq = out$tags$antFreq,
-    lat = out$tags$lat,
-    lon = out$tags$lon,
-    alt = NA,
-    depYear = as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")),
-    proj = myproj,
-    site = site,
-    recv = out$recv,
-    gain = out$tags$gain,
-    dbm = lotekPowerTodBm(out$tags$sig, out$tags$gain)
-    )
-
-  class(rv$ts) = c("POSIXt", "POSIXct")
-  rv$fullID = as.factor(rv$fullID)
-  rv$ant = as.factor(rv$ant)
   ## split output datasets between my and others' projects, or put all in the same file
   
   if (split) {
@@ -100,7 +42,7 @@ dta2sg = function(
   } else {
     outfile = sub("\\.dta$", "_filtered_all_tags.rds", DTAfile, ignore.case=TRUE) ## output file
     saveRDS(rv, outfile)
-    cat(sprintf("Wrote all tags (yours and other projets') to file:\n   %s\n", outfile))
+    cat(sprintf("Wrote all tags (yours and other projects') to file:\n   %s\n", outfile))
   }
 
   return(invisible(rv))
