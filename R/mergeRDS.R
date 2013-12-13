@@ -209,6 +209,7 @@ create index tags_idproj on tags ( id, tagProj );
 create index tags_fullSite on tags ( fullSite );
 create index tags_tagProj on tags ( tagProj );
 create index tags_id on tags ( id );
+create index tags_site on tags ( site );
 pragma integrity_check;
 ")
 
