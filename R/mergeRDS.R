@@ -210,6 +210,8 @@ create index tags_fullSite on tags ( fullSite );
 create index tags_tagProj on tags ( tagProj );
 create index tags_id on tags ( id );
 create index tags_site on tags ( site );
+create index tags_proj on tags ( proj );
+create index tags_sp on tags ( sp );
 pragma integrity_check;
 ")
 
