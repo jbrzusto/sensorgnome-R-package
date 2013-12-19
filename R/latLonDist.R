@@ -25,7 +25,7 @@ latLonDist = function(lat1, lon1, lat2, lon2) {
 
   llmat = cbind(lat1, lon1, lat2, lon2) ## recycles coordinates to match
 
-  s = numeric(nrow(llmat)) ## return values
+  s = rep(-1, nrow(llmat)) ## return values; -1 means not yet computed
   for (i in 1:nrow(llmat)) {  ## calculate distance between i'th pair of points
     L = rad(llmat[i, 4]-llmat[i, 2])
     U1 = atan((1-f) * tan(rad(llmat[i, 1])))
@@ -41,7 +41,7 @@ latLonDist = function(lat1, lon1, lat2, lon2) {
       cosLambda = cos(lambda)
       sinSigma = sqrt((cosU2*sinLambda) * (cosU2*sinLambda) + 
         (cosU1*sinU2-sinU1*cosU2*cosLambda) * (cosU1*sinU2-sinU1*cosU2*cosLambda))
-      if (sinSigma==0) {
+      if (abs(sinSigma) < 1e-10) {
         s[i] = 0 ## co-incident points
         break
       }
@@ -63,7 +63,7 @@ latLonDist = function(lat1, lon1, lat2, lon2) {
 
     if (iterLimit==0) {
       s[i] = NaN  ## formula failed to converge
-    } else {
+    } else if (s[i] < 0) {
       uSq = cosSqAlpha * (a*a - b*b) / (b*b)
       A = 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)))
       B = uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)))
