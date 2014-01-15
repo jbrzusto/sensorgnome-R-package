@@ -15,6 +15,8 @@ makeTagDepDB = function(year=2013) {
 
   mkts = function(prefix) {
     cols = paste(prefix, c("yr", "mo", "day", "hr", "min"), sep=".")
+    for (c in cols)
+      x[[c]][is.na(x[[c]])] = 0
     x[[paste(prefix, "TS", sep="")]] <<- ymd_hms(do.call(sprintf, c(list("%d-%02d-%02d %0d:%02d:00"), x[, cols ])))
     for (c in cols)
       x[[c]] <<- NULL
