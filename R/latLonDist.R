@@ -27,6 +27,11 @@ latLonDist = function(lat1, lon1, lat2, lon2) {
 
   s = rep(-1, nrow(llmat)) ## return values; -1 means not yet computed
   for (i in 1:nrow(llmat)) {  ## calculate distance between i'th pair of points
+    if (!all(is.finite(llmat[i,]))) {
+      s[i] = NA
+      next
+    }
+      
     L = rad(llmat[i, 4]-llmat[i, 2])
     U1 = atan((1-f) * tan(rad(llmat[i, 1])))
     U2 = atan((1-f) * tan(rad(llmat[i, 3])))
