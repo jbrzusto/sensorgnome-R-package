@@ -1,7 +1,7 @@
 ## getAllSiteFiles.R: get a list of the full paths to files of 
 ## a specified extension for each site at each project for a given year
 
-getAllSiteFiles = function(year, suffix=".rds") {
+getAllSiteFiles = function(year, suffix="_alltags.rds") {
   projs = dir(sprintf("/SG/contrib/%d", year),
     pattern = sprintf("^[[:alpha:]]+$", year),
     full.names = TRUE)
@@ -9,6 +9,6 @@ getAllSiteFiles = function(year, suffix=".rds") {
     pattern = "^[[:alpha:]0-9_]+$",
     full.names=TRUE)
   files = dir(sites,
-    pattern = paste("^2013_[[:alpha:]0-9_]+\\", suffix, "$", sep=""),
+    pattern = paste("^", year, "_[[:alpha:]0-9_]+", suffix, "$", sep=""),
     full.names=TRUE)
 }
