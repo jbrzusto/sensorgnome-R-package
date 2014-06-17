@@ -48,6 +48,9 @@ mergeRDS = function(year) {
   for (f in files) {
     x = readRDS(f)
 
+    if (is.null(nrow(x)))
+        next
+        
     ## force ID to be integer, with values as expected; there may be
     ## overlap among projects and frequencies, as this is just intended
     ## to be the manufacturer's ID code.
