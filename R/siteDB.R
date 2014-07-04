@@ -3,5 +3,7 @@
 ##
 
 siteDB = function(proj, site, year = lubridate::year(Sys.time())) {
-    siteFile(".sqlite", proj, site, year)
+    rv = siteFile(".sqlite", proj, site, year)
+    if (length(rv) == 0)
+        stop("No database for specified year, project, site")
 }

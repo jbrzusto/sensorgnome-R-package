@@ -2,13 +2,7 @@
 ##
 
 siteGPS = function(proj, site, year = lubridate::year(Sys.time())) {
-    library(RSQLite)
-    db = siteDB(proj, site, year)
-    if (length(db) == 0)
-        stop("Error: no database for specified project, site, and year")
-    con = dbConnect("SQLite", siteDB(proj, site, year))
-    rv = dbGetQuery(con, "select * from gps")
-    dbDisconnect(con)
+    rv = siteSQL("select * from gps", proj, site, year)
     class(rv$ts) = c("POSIXt", "POSIXct")
     return(rv)
 }
