@@ -70,9 +70,10 @@ rawPulses = function(range, proj, site, year = lubridate::year(Sys.time())) {
     }
     names(rv) = c("ant", "ts", "freq", "sig", "noise")
     class(rv$ts) = c("POSIXt", "POSIXct")
-   
-##    begin$offset = range[1] - begin$bootstart  ## how far into the boot cycle is start of range
-##    end$offset = range[2] - end$bootstart ## how far into the boot cycle is end of range
+
+    ## filter out extra pulses from start of first file and end of last
+    
+    rv = subset(rv, ts >= range[1] & ts <= range[2])
     
     return(rv)
 }
