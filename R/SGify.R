@@ -34,12 +34,12 @@ SGify = function(tags, year, proj, site, recv) {
   
   ## and we need these:
 
-  ##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"      
-  ##  [7] "sigsd"     "noise"     "runID"     "posInRun"  "slop"      "burstSlop"
-  ## [13] "antFreq"   "tsOrig"    "bootnum"   "runLen"    "id"        "tagProj"  
-  ## [19] "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
-  ## [25] "site"      "recv"      "sp"        "label"
-  
+  ##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"       "sigsd"     "noise"    
+  ##  [9] "runID"     "posInRun"  "slop"      "burstSlop" "antFreq"   "tsOrig"    "bootnum"   "runLen"   
+  ## [17] "id"        "tagProj"   "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
+  ## [25] "site"      "recv"      "sp"        "label"     "fullSite"  "gain"      "dbm"       "crossFreq"
+  ## [33] "tagFreq"
+
   ## where fullID is as id above
 
   rv = data.frame(
@@ -69,10 +69,15 @@ SGify = function(tags, year, proj, site, recv) {
     proj = proj,
     site = site,
     recv = recv,
+    sp = NA, ## FIXME: when the deployment DB exists, do this: depInfo(tagProj, id, tags$antFreq, tags$ts, year=year)
+    label = NA,
+    fullSite = NA,
     gain = tags$gain,
-    dbm = lotekPowerTodBm(tags$sig, tags$gain)
+    dbm = lotekPowerTodBm(tags$sig, tags$gain),
+    crossFreq = FALSE,
+    tagFreq = tags$antFreq
     )
-
+  rv$label = as.factor(sprintf("%s %03d @ %.3f-%s", rv$sp, rv$id, rv$nomFreq, rv$tagProj))
   class(rv$ts) = c("POSIXt", "POSIXct")
   rv$fullID = as.factor(rv$fullID)
   rv$ant = as.factor(rv$ant)
