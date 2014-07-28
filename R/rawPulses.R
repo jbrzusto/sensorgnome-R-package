@@ -8,32 +8,41 @@ rawPulses = function(range, proj, site, year = lubridate::year(Sys.time())) {
     range = sort(as.numeric(range))
 
     tp = timePins(proj, site, year)
-    tp = tp[order(tp$bootstart),]
-    class(tp$systs) = class(tp$gpsts) = class(tp$bootstart) = "numeric"
 
-    begin = tail(subset(tp, bootstart <= range[1]), 1)  ## timepin record for start of range
-    end = tail(subset(tp, bootstart <= range[2]), 1)  ## timepin record for end of range
-
-    ## the endpoints of the range are legitimate timestamps which will
-    ## be either before or after the GPS time pin.  If before, we
-    ## back-calculate the 2000-01-01-based date, which is what the raw
-    ## file will use.  Otherwise, we use the date as-is, since raw
-    ## file timestamps will have the correct date.
+    filerange = range
+    bootnumrange = c(0, 0)
+    if (nrow(tp) > 0) {
+        tp = tp[order(tp$bootstart),]
+        class(tp$systs) = class(tp$gpsts) = class(tp$bootstart) = "numeric"
+        
+        begin = tail(subset(tp, bootstart <= range[1]), 1)  ## timepin record for start of range
+        end = tail(subset(tp, bootstart <= range[2]), 1)  ## timepin record for end of range
+        
+        ## the endpoints of the range are legitimate timestamps which will
+        ## be either before or after the GPS time pin.  If before, we
+        ## back-calculate the 2000-01-01-based date, which is what the raw
+        ## file will use.  Otherwise, we use the date as-is, since raw
+        ## file timestamps will have the correct date.
+        
+        if (range[1] < begin$gpsts) {
+            filerange[1] = as.numeric(ymd("2000-01-01")) + range[1] - begin$bootstart
+            bootnumrange[1] = begin$bootnum
+        }
+        if (range[2] < end$gpsts) {
+            filerange[2] = as.numeric(ymd("2000-01-01")) + range[2] - end$bootstart
+            bootnumrange[2] = end$bootnum
+        }
+    }
     
-    if (range[1] < begin$gpsts)
-        begin$filets = as.numeric(ymd("2000-01-01")) + range[1] - begin$bootstart
-    else
-        begin$filets = range[1]
-
-    if (range[2] < end$gpsts)
-        end$filets = as.numeric(ymd("2000-01-01")) + range[2] - end$bootstart
-    else
-        end$filets = range[2]
-
     ## for each endpoint of the range, find the latest dated raw file which is before the endpoint
 
-    beginfile = siteSQL(sprintf("select * from files where bootnum=%d and ts <= %f order by ts desc limit 1", begin$bootnum, begin$filets), proj, site, year)
-    endfile = siteSQL(sprintf("select * from files where bootnum=%d and ts <= %f order by ts desc limit 1", end$bootnum, end$filets), proj, site, year)
+    beginfile = siteSQL(sprintf("select * from files where %s ts <= %f order by ts desc limit 1",
+        if (bootnumrange[1] > 0) sprintf("bootnum=%d and", bootnumrange[1]) else "",
+        filerange[1]), proj, site, year)
+        
+    endfile = siteSQL(sprintf("select * from files where %s ts <= %f order by ts desc limit 1",
+        if (bootnumrange[2] > 0) sprintf("bootnum=%d and", bootnumrange[2]) else "",
+        filerange[2]), proj, site, year)
 
     files = siteSQL(sprintf("select * from files where fileID >= %d and fileID <= %d", beginfile$fileID, endfile$fileID), proj, site, year)
     class(files$ts)=c("POSIXt", "POSIXct")
