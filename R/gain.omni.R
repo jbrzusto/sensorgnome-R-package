@@ -40,10 +40,11 @@ gain.omni = function(antPos, antAxis, remPos) {
     cosTheta = dotProd / dispMag
     sinTheta = sqrt(1 - cosTheta ^2)
     
-    ## E-field gain is cos (pi / 2 * cos(theta)) / sin(theta)
+    ## E-field gain is D * cos (pi / 2 * cos(theta)) / sin(theta)
     ## square this for power.  Deal correctly with theta ~ 0.
+    ## D is 1.640922
 
-    ifelse(abs(sinTheta) >= .Machine$double.eps, cos(pi / 2 * cosTheta) / sinTheta, 0)^2
+    ifelse(abs(sinTheta) >= .Machine$double.eps, 1.640922 * cos(pi / 2 * cosTheta) / sinTheta, 0)^2
 }
 
     
