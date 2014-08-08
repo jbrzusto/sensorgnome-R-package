@@ -36,7 +36,7 @@ isLocalMax = function(x, y, dx=1) {
 
     ## parameters:
     ##
-    ## x: vector of locations on x axis, in increasing order
+    ## x: vector of locations on x axis, in non-decreasing order
     ## y: vector of corresponding y values; length (y) = length(x)
     ## dx: maximum distance along x axis to look for 'nearby' points
     ##
@@ -49,8 +49,8 @@ isLocalMax = function(x, y, dx=1) {
     if (length(x) != length(y))
         stop("Lengths of x and y must be equal")
 
-    if (any(diff(x) <= 0))
-        stop("x coordinates must be in increasing order")
+    if (any(diff(x) < 0))
+        stop("x coordinates must be in non-decreasing order")
     
     ismax = rep(FALSE, length(x))  ## assume no local maxima
 
@@ -59,7 +59,7 @@ isLocalMax = function(x, y, dx=1) {
     mx = x[1]  ## x-coordinate of most recent maximum candidate
     
     for (i in 2:length(x)) {
-        if (x[i] - mx <= dx & y[i] <= my)
+        if (x[i] - mx <= dx && y[i] <= my)
             ## this row is too close to the previous
             ## max and is not larger, so skip it
             next
