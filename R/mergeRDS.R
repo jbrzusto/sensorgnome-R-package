@@ -156,12 +156,11 @@ mergeRDS = function(year) {
 
     dbWriteTable(con, "tags", x[, match(colNames, names(x))], row.names=FALSE, append=TRUE)
 
-    print(dbGetQuery(con, "pragma integrity_check"))
     nrows = nrows + nrow(x)
     cat (f, " ", nrows, "\n")
 
     dbDisconnect(con)
-    mergeQuery = c(mergeQuery, sprintf("attach database '%s' as site;\ninsert into tags select * from site.tags;\ndetach database site;\npragma integrity_check;\n", siteSQLiteFile))
+    mergeQuery = c(mergeQuery, sprintf("attach database '%s' as site;\ninsert into tags select * from site.tags;\ndetach database site;\n", siteSQLiteFile))
   }
 
 
@@ -215,7 +214,7 @@ create index tags_id on tags ( id );
 create index tags_site on tags ( site );
 create index tags_proj on tags ( proj );
 create index tags_sp on tags ( sp );
-pragma integrity_check;
+create index tags_recv on tags ( recv );
 ")
 
   mergeQueryFile = sprintf("/SG/%d_master_merge_query.sql", year)
