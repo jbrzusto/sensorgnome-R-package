@@ -20,7 +20,7 @@
 
 dot = function(x1, x2) {
     if (length(x1) == 3)
-        apply(x1 * t(x2), 2, sum)
+        apply(x1 * t(x2), 1, sum)
     else if (length(x2) == 3)
         apply(t(x1) * x2, 2, sum)
     else
