@@ -37,12 +37,12 @@
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
 makeYagi = function(n, pos, axis1, axis2) {
-    gainfun = paste("gainYagi", n, sep="")
-    if (!exists(gainfun))
+    gainpat = sprintf("yagi%dpattern", n)
+    if (!exists(gainmat))
         stop("I don't know the antenna pattern for a Yagi antenna with", n, "elements.  Contact sensorgnome.org for help")
-    gainfun = get(gainfun)
-    if (! exists(".omni.yagi"))
-        .omni.yagi <<- proto(pos=NA, axis=NA, gain=function(obj, x) gainfun(obj$axis, x),
+    gainpat = get(gainpat)
+    if (! exists(".yagi.proto"))
+        .yagi.proto <<- proto(pos=NA, axis=NA, n=n, gain=function(obj, x) gainYagi(obj$n, obj$axis, x),
                               setAxis = function(obj, axis1, axis2) {
                                   axis1 = makeAxis(axis1)
                                   axis2 = makeAxis(axis2, axis1)
@@ -52,7 +52,7 @@ makeYagi = function(n, pos, axis1, axis2) {
                                   obj$axis = matrix(c(axis2, axi1), nrow=2, byrow=TRUE)
                               },
                               type="yagi")
-    x = proto(.omni.proto)
+    x = proto(.yagi.proto)
     ## store position
     x$pos = pos
 
