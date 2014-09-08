@@ -41,7 +41,7 @@ x = matrix(x[-(1:3)], byrow=TRUE, nrow=dims[1])
 x = 10^(maxgain/10) * x
 
 ## only need theta from 0...180, since pattern is symmetric
-yagi9pattern = x[91:271,]
+yagi9pattern = x[1:181,]
 
 save(list="yagi9pattern", file="../data/yagi9pattern.rda")
 
