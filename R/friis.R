@@ -25,27 +25,28 @@ friis = function(ant1, ant2, waveLength=3e8/166.38e6) {
         stop("need an antenna object for each parameter; see e.g. makeOmni()")
     
     ## get displacement vector
-    disp = ant2$pos - ant1$pos
+    if (length(ant1$pos) == 3)
+        disp = t(t(ant2$pos) - c(ant1$pos))
+    else if (length(ant2$pos) == 3)
+        disp = t(c(ant2$pos) - t(ant1$pos))
+    else
+        stop("FIXME: can't deal with both antennas having moving positions")
 
     ## magnitude of displacement
     dispMag = mag(disp)
-
-    ## for each antenna, calculate the angles between the antenna axis (axes)
-    ## and the displacement vector
-
-    ang1 = acos(dot(ant1$axis, disp) / dispMag)
-    ang2 = acos(dot(ant2$axis, disp) / dispMag)
-
-    ## calculate antenna pattern gains for each antenna
-    g1 = ant1$gain(ang1)
-    g2 = ant2$gain(ang2)
+    disp = disp / dispMag
+    
+    ## for each antenna, calculate the gain due to that antenna's pattern
+    ## with respect to the displacement vector
+    g1 = ant1$gain(disp)
+    g2 = ant2$gain(-disp)
 
     ## gain factor due to distance:
     gd = (waveLength / (4 * pi * dispMag))^2
 
     ## gain factor due to polarization
     ## This is the theoretical value:
-    gp = dot(ant1$axis, t(ant2$axis))^2
+    gp = dot(ant1$axis[1,], ant2$axis[1,])^2
 
     ## In practice, we don't find the polarization effect to be this
     ## extreme, likely due to multipath transmission, interaction

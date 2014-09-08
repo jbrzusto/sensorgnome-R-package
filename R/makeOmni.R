@@ -14,10 +14,10 @@
 
 makeOmni = function(pos, axis) {
     if (! exists(".omni.proto"))
-        .omni.proto <<- proto(pos=NA, axis=NA, gain=function(.ignore, x) gainOmni(x),
+        .omni.proto <<- proto(pos=NA, axis=NA, gain=function(obj, x) gainOmni(acos(dot(x, obj$axis))),
                               setAxis = function(obj, axis) {
                                   ## store axis, ensuring it's a unit vector forming the first column of a 1 x 3 matrix
-                                  x$axis = matrix(axis / mag(axis), nrow=1)
+                                  obj$axis = matrix(makeAxis(axis), 1, 3)
                               },
                               type="omnidirectional")
     x = proto(.omni.proto)

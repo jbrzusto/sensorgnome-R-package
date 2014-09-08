@@ -19,11 +19,13 @@
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
 dot = function(x1, x2) {
-    if (length(x1) == 3)
-        apply(x1 * t(x2), 1, sum)
-    else if (length(x2) == 3)
-        apply(t(x1) * x2, 2, sum)
-    else
-        outer(x1[,1], x2[,1], `*`) + outer(x1[,2], x2[,2], `*`) + outer(x1[,3], x2[,3], `*`)
+    cs = is.matrix(x1) + 2L*is.matrix(x2)
+    if (cs == 0L)
+        return (sum(x1*x2))
+    if (cs == 1L)
+        dim(x2) = c(1, length(x2))
+    else if (cs == 2L)
+        dim(x1) = c(1, length(x1))
+    outer(x1[,1], x2[,1], `*`) + outer(x1[,2], x2[,2], `*`) + outer(x1[,3], x2[,3], `*`)
 }
 

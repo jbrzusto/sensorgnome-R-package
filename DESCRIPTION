@@ -10,5 +10,6 @@ Depends:
     R (>= 3.0.0),
     tcltk,
     RSQLite,
-    XML
+    XML,
+    proto
 License: GPL (>= 2)
