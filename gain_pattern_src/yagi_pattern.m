@@ -80,15 +80,3 @@ endfor
 
 sgm = size(gm);
 save -ascii yagi_9_pattern.txt sgm D gm;    % save to text file
-
-%%% 1 element omni antenna e.g. tag antenna
-
-[g,th,c]=dipole (0.5, 180/dth);              % pattern for 1/2 wave omni
-[D,omega]=dmax(th,g);                        % absolute directional gain
-disp("Omni 1/2 wave D")
-disp(10*log10(D))
-
-g = g([1:size(g,2), 2:size(g,2)])';
-sg = size(g);
-save -ascii omni_halfwave_pattern.txt sg D g;	    % save to text file
-
