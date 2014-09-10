@@ -17,6 +17,7 @@ export (
     fixTimeJumps,
     friis,
     gainOmni,
+    gainYagi,
     getAllSiteFiles,
     getOperatingPeriods,
     getProjects,
@@ -30,6 +31,7 @@ export (
     makeOmni,
     makeRecvStatusDB,
     makeTagDepDB,
+    makeYagi,
     mergeRDS,
     projPath,
     publicDTA,
@@ -47,3 +49,9 @@ export (
     tags,
     timePins
     )
+
+export (
+    yagi5pattern,
+    yagi9pattern
+    )
+
