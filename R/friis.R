@@ -15,6 +15,118 @@
 #' @references \url{http://en.wikipedia.org/wiki/Dipole_antenna#Half-wave_dipole}
 #'
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
+#'
+#'
+#'@examples
+#' 
+#'
+#' ##
+#'##
+#'## simple test: 4 omnis set up at corners of 1000 metre square
+#'## bird flies past on random path at random speed
+#'##
+#'
+#'## receivers: 4 vertical omni antennas at corners of 1000 metre square
+#'## centred at (0, 0, 0)
+#'
+#'rx = list (
+#'    makeOmni(c( -500, -500, 0), "vertical"),
+#'    makeOmni(c( -500,  500, 0), "vertical"),
+#'    makeOmni(c(  500, -500, 0), "vertical"),
+#'    makeOmni(c(  500,  500, 0), "vertical")
+#'    )
+#'
+#'## random uniform bird path (parallel to ground at random height)
+#'
+#'## uniform velocity (x, y) each component in range [-10, 10] m/s
+#'## and component 0 in z direction
+#'
+#'velocity = c(runif(2, -10, 10), 0)
+#'
+#'## constant height
+#'
+#'height = runif(1, 0, 2000)
+#'
+#'## random (x, y) location at time zero, in 2000 x 2000 metre square
+#'## centred at (0, 0, 0)
+#'
+#'loc0 = c(runif(2, -1000, 1000), height)
+#'
+#'## path time interval is [-100, 100] seconds; tag bursts every 5 seconds
+#'
+#'t = seq(from = -300, to = 300, by = 5)
+#'n = length(t)
+#'## path: n x 3 matrix giving x, y, z at each location
+#'
+#'path =  t(t(outer(t, velocity, `*`)) + loc0)
+#'
+#'## bird's transmitter antenna
+#'
+#'tx = makeOmni(pos=path[1,], axis=velocity)
+#'
+#'dB = function(x) 10*log10(x)
+#'
+#'## calculate relative signal strength at each receiver at each point in time
+#'
+#'tx$pos = path
+#'
+#'rss = lapply(rx, function(x, y) dB(friis(x, y)), tx)
+#'
+#'plot(t, rss[[1]], ylim=range(unlist(rss)))
+#'for(i in 2:length(rx))
+#'    points(t, rss[[i]], col=i)
+#'plot(path[,1:2], xlim=c(-2000,2000), ylim=c(-2000,2000), type="l")
+#'arrows(path[1,1], path[1,2], path[n,1], path[n,2])
+#'for (i in seq(along=rx))
+#'    points((t(rx[[i]]$pos[1:2])), pch=as.character(i), col=i)
+#'
+#'
+#'## another test: each antenna oriented horizontally and perpendicular
+#'## to displacement from origin
+#'
+#'rx = list (
+#'    makeOmni(c( -500, -500, 0), c(1, -1, 0)),
+#'    makeOmni(c( -500,  500, 0), c(1, 1, 0)),
+#'    makeOmni(c(  500, -500, 0), c(1, 1, 0)),
+#'    makeOmni(c(  500,  500, 0), c(1, -1, 0))
+#'    )
+#'
+#'rss = lapply(rx, function(x, y) dB(friis(x, y)), tx)
+#'
+#'plot(t, rss[[1]], ylim=range(unlist(rss)))
+#'for(i in 2:length(rx))
+#'    points(t, rss[[i]], col=i)
+#'plot(path[,1:2], xlim=c(-2000,2000), ylim=c(-2000,2000), type="l")
+#'arrows(path[1,1], path[1,2], path[n,1], path[n,2])
+#'for (i in seq(along=rx))
+#'    points((t(rx[[i]]$pos[1:2])), pch=as.character(i), col=i)
+#'
+#'
+#'
+#'## now a Yagi antenna pointing NE at 45 degrees upward
+#'
+#'a = makeYagi(n=9, axis1=c(45, 45), axis2="horizontal", pos=c(0, 0, 0))
+#'
+#'## verify that the antenna pattern in the plane containing the antenna
+#'## matches that of the antenna in standard position.
+#'
+#'th=rad(0:360)
+#'
+#'## a circle in the antenna's plane, starting in the antenna's major
+#'## direction and going counter-clockwise (the antenna's axis matrix
+#'## has the major axis on the second row; the cross-piece axis on the
+#'## first row)
+#'pl = cbind(cos(th), sin(th)) %*% a$axis[2:1,]
+#'
+#'g = a$gain(pl)
+#'
+#'scaled.g = 30 + pmax(-30, 10*log10(g))
+#'
+#'plot(cos(th) * scaled.g, sin(th) * scaled.g)
+#'
+#'
+#' 
+
 
 friis = function(ant1, ant2, waveLength=3e8/166.38e6) {
     ## we use the closed-form formula from the reference.  The only
