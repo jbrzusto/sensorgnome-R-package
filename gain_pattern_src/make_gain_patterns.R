@@ -22,7 +22,7 @@ maxgain = x[3]
 x = matrix(x[-(1:3)], byrow=TRUE, nrow=dims[1])
 
 ## convert to absolute gain in linear units
-x = 10^(maxgain/10) * x
+x = maxgain * x
 
 ## only need theta from 90...270, since pattern is symmetric
 yagi5pattern = x[91:271,]

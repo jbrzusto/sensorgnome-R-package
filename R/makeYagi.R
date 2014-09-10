@@ -38,24 +38,27 @@
 
 makeYagi = function(n, pos, axis1, axis2) {
     gainpat = sprintf("yagi%dpattern", n)
-    if (!exists(gainmat))
-        stop("I don't know the antenna pattern for a Yagi antenna with", n, "elements.  Contact sensorgnome.org for help")
-    gainpat = get(gainpat)
+    if (!exists(gainpat))
+        stop("I don't know the antenna pattern for a Yagi antenna with ", n, " elements.  Contact sensorgnome.org for help")
     if (! exists(".yagi.proto"))
-        .yagi.proto <<- proto(pos=NA, axis=NA, n=n, gain=function(obj, x) gainYagi(obj$n, obj$axis, x),
+        .yagi.proto <<- proto(pos=NA, axis=NA, n=n,
+                              gain=function(obj, x) gainYagi(obj$gainpat, obj$axis, x),
                               setAxis = function(obj, axis1, axis2) {
                                   axis1 = makeAxis(axis1)
                                   axis2 = makeAxis(axis2, axis1)
                                   if (abs(dot(axis1, axis2) > 1e-10))
                                       stop("Specified antenna axes are not perpendicular")
                                   ## Note: we store the element axis first, to match the omni antennas
-                                  obj$axis = matrix(c(axis2, axi1), nrow=2, byrow=TRUE)
+                                  obj$axis = matrix(c(axis2, axis1), nrow=2, byrow=TRUE)
                               },
                               type="yagi")
     x = proto(.yagi.proto)
     ## store position
     x$pos = pos
 
+    ## store gain pattern
+    x$gainpat = get(gainpat)
+    
     x$setAxis(axis1, axis2)
     ## proto() doesn't copy extra class attributes from its proto argument, so set it here:
     class(x) = c(class(x), "antenna")
