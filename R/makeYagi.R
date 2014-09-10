@@ -41,33 +41,50 @@ makeYagi = function(n, pos, axis1, axis2) {
     if (!exists(gainpat))
         stop("I don't know the antenna pattern for a Yagi antenna with ", n, " elements.  Contact sensorgnome.org for help")
     if (! exists(".yagi.proto"))
-        .yagi.proto <<- proto(pos=NA, axis=NA, n=n,
-                              gain=function(obj, x) {
-                                  ## the gain function first rotates the displacement vector
-                                  ## into the coordinates appropriate for an antenna in standard
-                                  ## position, then looks up the gain in the pattern
-                                  gainYagi(obj$gainpat, x %*% obj$txmat)
-                              },
-                              setAxis = function(obj, axis1, axis2) {
-                                  axis1 = makeAxis(axis1)
-                                  axis2 = makeAxis(axis2, axis1)
-                                  if (abs(dot(axis1, axis2) > 1e-10))
-                                      stop("Specified antenna axes are not perpendicular")
-                                  ## Note: we store the conducting element axis first, to match the omni antennas
-                                  obj$axis = matrix(c(axis2, axis1), nrow=2, byrow=TRUE)
+        .yagi.proto <<- proto(
+            setPattern = function(obj, p) obj$gainpat = p,
+            
+            setN = function(obj, n) obj$n = n,
+            
+            gain = function(obj, x) {
+                ## the gain function first rotates the displacement vector
+                ## into the coordinates appropriate for an antenna in standard
+                ## position, then looks up the gain in the pattern
+                gainYagi(obj$gainpat, x %*% obj$txmat)
+            },
+            
+            setAxis = function(obj, axis1, axis2) {
+                axis1 = makeAxis(axis1)
+                axis2 = makeAxis(axis2, axis1)
+                if (abs(dot(axis1, axis2) > 1e-10))
+                    stop("Specified antenna axes are not perpendicular")
+                ## Note: we store the conducting element axis first, to match the omni antennas
+                obj$axis = matrix(c(axis2, axis1), nrow=2, byrow=TRUE)
 
-                                  ## generate a rotation matrix to map coordinates for an arbitrarily-
-                                  ## oriented antenna back to those corresponding to an antenna in
-                                  ## standard position (main axis in positive y direction; conducting
-                                  ## elements in x direction), to correspond to the pattern matrix
+                ## generate a rotation matrix to map coordinates for an arbitrarily-
+                ## oriented antenna back to those corresponding to an antenna in
+                ## standard position (main axis in positive y direction; conducting
+                ## elements in x direction), to correspond to the pattern matrix
 
-                                  obj$txmat = solve(rbind(axis2, axis1, cross(axis2, axis1, TRUE)),
-                                      rbind(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)))
-                              },
-                              type="yagi")
+                obj$txmat = solve(rbind(axis2, axis1, cross(axis2, axis1, TRUE)),
+                    rbind(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)))
+            },
+            
+            setPos = function(obj, pos) {
+                obj$pos = matrix(pos, ncol=3)
+            },
+            
+            type="yagi"
+            )
+    
+    ## make copy of prototype antenna
     x = proto(.yagi.proto)
+
+    x$setN(n)
+    x$setPattern(gainpat)
+    
     ## store position
-    x$pos = pos
+    x$setPos(pos)
 
     ## store gain pattern
     x$gainpat = get(gainpat)
