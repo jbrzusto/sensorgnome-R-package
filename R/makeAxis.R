@@ -22,6 +22,7 @@
 #' \item a 2-vector: this represents azimuth and elevation angles (degrees clockwise
 #' from North, degrees above the horizon) of the axis.
 #' \item a 3-vector: this is a vector giving the axis as a direction vector (x, y, z).
+#' }
 #'
 #' @param ref: reference axis.  If not null, must be a unit 3-vector.
 #' 

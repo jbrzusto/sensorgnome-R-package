@@ -6,13 +6,13 @@
 mag(x)
 }
 \arguments{
-\item{x}{3-element vector or \code{n x 3} matrix}
+\item{x}{vector or \code{n x 3} matrix}
 }
 \value{
 the norm of x, or an n-vector giving the norm of each row of x (for a matrix)
 }
 \description{
-Get the Euclidean norm of a single 3-vector or each row of an nx3 matrix.
+Get the Euclidean norm of a single vector or each row of an nx3 matrix.
 }
 \author{
 John Brzustowski \email{jbrzusto@REMOVE_THIS_PART_fastmail.fm}

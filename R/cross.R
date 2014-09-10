@@ -10,7 +10,7 @@
 #'
 #' @return 3-vector giving the standard vector cross product, or a unit
 #' vector in the same direction, if \code{unit} is TRUE.
-#' The cross product has magnitude \code{|a||b|sin(\theta)} where \code{theta}
+#' The cross product has magnitude \code{|a||b|sin(theta)} where \code{theta}
 #' is the (smaller) angle between the two vectors.  The direction is perpendicular
 #' to both vectors, with sign chosen by the right hand rule.
 #'

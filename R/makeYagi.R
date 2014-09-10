@@ -33,6 +33,7 @@
 #' the \code{axis1} parameter
 #' \item a 3-vector: this is a vector giving the direction (x, y, z) in which the antenna elements
 #' are pointing.  It must be perpendicular to the \code{axis1} parameter.
+#' }
 #'
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
