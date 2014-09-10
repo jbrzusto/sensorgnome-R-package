@@ -39,7 +39,7 @@ makeAxis = function(dir, ref = NULL) {
     if (dir[1] == "horizontal") {
         if (is.null(ref))
             stop("cannot specify 'horizontal' without a reference axis")
-        return (crossProd(ref, c(0, 0, 1), TRUE))
+        return (cross(ref, c(0, 0, 1), TRUE))
     }
     if (dir[1] == "vertical")
         return (c(0, 0, 1))
