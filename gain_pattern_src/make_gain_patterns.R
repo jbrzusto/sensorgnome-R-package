@@ -27,7 +27,6 @@ x = maxgain * x
 ## only need theta from 90...270, since pattern is symmetric
 yagi5pattern = x[91:271,]
 
-save(list="yagi5pattern", file="../data/yagi5pattern.rda")
 
 
 x = scan("yagi_9_pattern.txt")
@@ -43,6 +42,6 @@ x = 10^(maxgain/10) * x
 ## only need theta from 90...270, since pattern is symmetric
 yagi9pattern = x[91:271,]
 
-save(list="yagi9pattern", file="../data/yagi9pattern.rda")
+save(list=c("yagi5pattern", "yagi9pattern", file="../R/sysdata.rda")
 
 
