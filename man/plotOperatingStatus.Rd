@@ -3,7 +3,7 @@
 \alias{plotOperatingStatus}
 \title{Plot receiver operating status.}
 \usage{
-plotOperatingStatus(site, proj, year = NULL)
+plotOperatingStatus(site, proj, year = lubridate::year(Sys.time()))
 }
 \arguments{
 \item{site}{site name}

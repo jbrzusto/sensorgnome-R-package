@@ -14,11 +14,8 @@
 #'
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
-plotOperatingStatus = function(site, proj, year = NULL) {
-    require(lubridate)
-    if (is.null(year))
-        year = year(Sys.time())
-    
+plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
+    library(lubridate)
     a = getOperatingStatus(site, proj, year)
 
     ## filter out data more than 3 years from start date (eliminate wonky GPS records) and before
@@ -34,16 +31,15 @@ plotOperatingStatus = function(site, proj, year = NULL) {
          yy,
          pch = ' ',
          col = "green",
-         ylim = c(24, 0),
-         main = c(sprintf("Hourly Status of Receiver at '%s' Site of '%s' Project - %d", site, proj, year),
-             sprintf("%d reboots during period shown", a$num.boots)),
+         ylim = c(0, 24),
+         main = c(sprintf("%d %s %s", year, proj, site), "Receiver status based on raw data file timestamps and GPS fixes"),
          xlab = "",
          ylab = "Hour of Day (GMT)",
-         sub = sprintf("Date (GMT; %d onwards)\n Green: Okay;    Yellow: GPS stuck;    Pink: SG not working\nRed ^: reboot;   Black line: reboot count, wrapping at 24"
-             , year)
+         sub = sprintf("Date (GMT; %d onwards)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nRed ^: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
+             , year, a$num.boots)
          )
 
-    rect (min(xx), min(yy), max(xx), max(yy)+1, col="#ffc0c0")
+    rect (min(xx), min(yy), max(xx), max(yy)+1, col="#ff4040")
     rect(xx, yy, xx + 3600*24, yy + 1,
         col="yellow", border="yellow")
      
@@ -53,6 +49,6 @@ plotOperatingStatus = function(site, proj, year = NULL) {
     abline(v = seq(from = trunc(timerange[1], "days"), to = trunc(timerange[2], "days"), by = 24 * 3600), lty=3, col="gray")
     rb = a$files.per.hour$ts[which(c(FALSE, diff(a$files.per.hour$bootnum) > 0))]
     points(trunc(rb, "day")+12*3600, hour(rb), pch="^", col="red")
-    points(a$files.per.hour$ts, 23 - a$files.per.hour$bootnum %% 24, type="s", col="black")
+    points(a$files.per.hour$ts, a$files.per.hour$bootnum %% 24, type="s", col="black")
 }
 

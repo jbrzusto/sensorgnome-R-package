@@ -3,7 +3,7 @@
 \alias{getOperatingStatus}
 \title{Get receiver operating status.}
 \usage{
-getOperatingStatus(site, proj, year = NULL)
+getOperatingStatus(site, proj, year = lubridate::year(Sys.time()))
 }
 \arguments{
 \item{site}{site name}

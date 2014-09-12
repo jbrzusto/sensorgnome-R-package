@@ -20,10 +20,7 @@
 #'}
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
-getOperatingStatus = function(site, proj, year = NULL) {
-    require(lubridate)
-    if (is.null(year))
-        year = year(Sys.time())
+getOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     f = siteFile(".sqlite", proj, site, year)
     if (length(f) == 0)
         stop("invalid combination of site, project, year")
