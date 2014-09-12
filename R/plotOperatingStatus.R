@@ -16,7 +16,6 @@
 
 plotOperatingStatus = function(site, proj, year = NULL) {
     require(lubridate)
-    savepar = par()
     if (is.null(year))
         year = year(Sys.time())
     
@@ -28,25 +27,32 @@ plotOperatingStatus = function(site, proj, year = NULL) {
     a$files.per.hour = subset(a$files.per.hour, ts >= start_ts & ts <= start_ts + 3 * 365.25 * 24 * 3600)
     timerange = range(a$files.per.hour$ts)
     
-    par(mar=c(7,4,4,2) + 0.1)
-    plot(trunc(a$files.per.hour$ts, "day"),
-         hour(a$files.per.hour$ts),
-         pch = 0,
+    xx = trunc(a$files.per.hour$ts, "day")
+    yy = hour(a$files.per.hour$ts)
+    
+    plot(xx,
+         yy,
+         pch = ' ',
          col = "green",
          ylim = c(24, 0),
-         main = c(sprintf("Status of Receiver at '%s' Site of '%s' Project - %d", site, proj, year),
+         main = c(sprintf("Hourly Status of Receiver at '%s' Site of '%s' Project - %d", site, proj, year),
              sprintf("%d reboots during period shown", a$num.boots)),
          xlab = "",
          ylab = "Hour of Day (GMT)",
-         sub = c("Date (GMT)\nSquares are hours with data recorded; when filled, GPS was working.\nBlack x indicates a reboot.  Dashed black line is reboot count.")
+         sub = sprintf("Date (GMT; %d onwards)\n Green: Okay;    Yellow: GPS stuck;    Pink: SG not working\nRed ^: reboot;   Black line: reboot count, wrapping at 24"
+             , year)
          )
 
-    points(trunc(a$gps$ts, "day"), hour(a$gps$ts), pch=15, col="green")
+    rect (min(xx), min(yy), max(xx), max(yy)+1, col="#ffc0c0")
+    rect(xx, yy, xx + 3600*24, yy + 1,
+        col="yellow", border="yellow")
+     
+    xx = trunc(a$gps$ts, "day")
+    yy = hour(a$gps$ts)
+    rect(xx, yy, xx + 24*3600, yy + 1, col="green", border="green")
     abline(v = seq(from = trunc(timerange[1], "days"), to = trunc(timerange[2], "days"), by = 24 * 3600), lty=3, col="gray")
     rb = a$files.per.hour$ts[which(c(FALSE, diff(a$files.per.hour$bootnum) > 0))]
-    points(rb, hour(rb), pch="x", col="black")
-    points(a$files.per.hour$ts, 23 - a$files.per.hour$bootnum %% 24, type="s", lty=3, col="black")
-    ##abline(v=rb, lty=3, col="red")
-    par(savepar)
+    points(trunc(rb, "day")+12*3600, hour(rb), pch="^", col="red")
+    points(a$files.per.hour$ts, 23 - a$files.per.hour$bootnum %% 24, type="s", col="black")
 }
 
