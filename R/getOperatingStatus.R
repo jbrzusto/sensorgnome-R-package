@@ -1,7 +1,9 @@
-#' Get receiver operating status via hourly file presence.
+#' Get receiver operating status.
 #'
 #' Counts the number of files written by a receiver during each hour for
-#' which data are available.
+#' which data are available.  Examines GPS records to see when GPS was
+#' functioning (vs. stuck on a fix). For each day, finds all antennas
+#' for which at least one pulse was detected.
 #'
 #' @param site site name
 #' 
@@ -9,14 +11,17 @@
 #'
 #' @param year deployment year (defaults to current year)
 #' 
-#' @return a data frame with columns \code{ts}, giving the top-of-the-hour timestamp
-#' for each hour of each day in the full operating range, and \code{n}, the count of files
-#' written within that hour.
-#'
-#'
+#' @return a list with these items:\cr
+#' \describe{
+#' \item{files.per.hour}{data frame with at most one record per hour, giving number of raw data files recorded and bootcount}
+#' \item{gpx.fix}{data frame with at most hourly true GPS fix (i.e. repeated 'stuck' fixes are not reported)}
+#' \item{undated.period}{the number of days of data recorded with dates beginning with 1 Jan 2000; these are periods when the GPS had not set the clock}
+#' \item{num.boots}{the number of times the system was restarted during the operating period}
+#'}
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
 getOperatingStatus = function(site, proj, year = NULL) {
+    require(lubridate)
     if (is.null(year))
         year = year(Sys.time())
     f = siteFile(".sqlite", proj, site, year)
@@ -24,23 +29,14 @@ getOperatingStatus = function(site, proj, year = NULL) {
         stop("invalid combination of site, project, year")
 
     con = dbConnect("SQLite", f)
-    fts = dbGetQuery(con, "select ts, bootnum from files order by ts")
+    fts = dbGetQuery(con, "select bootnum, min(ts) as ts, count(ts) as num from files group by bootnum, round(ts/3600 - 0.5)*3600 order by ts")
+    gps = dbGetQuery(con, "select distinct min(ts) as ts, lat, lon from gps group by round(ts/3600-0.5)*3600 order by ts")
     dbDisconnect(con)
 
-    class(fts$ts) = c("POSIXt", "POSIXct")
+    class(fts$ts) = class(gps$ts) = c("POSIXt", "POSIXct")
 
-    fts = subset(fts, ts >= ymd("2008-01-01"))
-    fts$hc = as.POSIXct(round(fts$ts,"hour"))
-    fts$hcf = as.factor(as.character(fts$hc))
+    ## duration of unpinned data (no GPS timefix)
+    undated.period = diff(range(fts$ts[fts$ts <= ymd("2002-01-01")]))
 
-    res = tapply(fts$ts, fts$hcf, length)
-    bcr = tapply(fts$bootnum, fts$hcf, mean)
-
-    rv = data.frame(ts=seq(from=fts$hc[1]-3600, to=fts$hc[nrow(fts)]+3600, by=3600))
-    rownames(rv) = as.character(rv$ts)
-    rv$count = 0
-    rv$bootnum = 0
-    rv[names(res), "count"] = c(res)
-    rv[names(res), "bootnum"] = c(bcr)
-    return(rv)
+    return (list(files.per.hour = fts, gps.fix = gps, undated.period = undated.period, num.boots = diff(range(fts$bootnum))))
 }
