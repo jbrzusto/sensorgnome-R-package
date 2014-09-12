@@ -35,7 +35,7 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
          main = c(sprintf("%d %s %s", year, proj, site), "Receiver status based on raw data file timestamps and GPS fixes"),
          xlab = "",
          ylab = "Hour of Day (GMT)",
-         sub = sprintf("Date (GMT; %d onwards)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nRed ^: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
+         sub = sprintf("Date (GMT; %d onwards)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nBlack *: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
              , year, a$num.boots)
          )
 
@@ -48,7 +48,7 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     rect(xx, yy, xx + 24*3600, yy + 1, col="green", border="green")
     abline(v = seq(from = trunc(timerange[1], "days"), to = trunc(timerange[2], "days"), by = 24 * 3600), lty=3, col="gray")
     rb = a$files.per.hour$ts[which(c(FALSE, diff(a$files.per.hour$bootnum) > 0))]
-    points(trunc(rb, "day")+12*3600, hour(rb), pch="^", col="red")
+    points(trunc(rb, "day")+12*3600, hour(rb), pch="*", col="black")
     points(a$files.per.hour$ts, a$files.per.hour$bootnum %% 24, type="s", col="black")
 }
 
