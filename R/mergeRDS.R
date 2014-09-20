@@ -39,7 +39,7 @@ mergeRDS = function(year) {
   
   ## target column names
 
-  colNames = c("ant", "ts", "fullID", "freq", "freqsd", "sig", "sigsd", "noise",  "runID", "posInRun", "slop", "burstSlop", "antFreq", "tsOrig",  "bootnum", "runLen", "id", "tagProj", "nomFreq", "lat", "lon",  "alt", "depYear", "proj", "site", "recv", "sp", "label", "fullSite", "gain", "dbm", "crossFreq", "tagFreq" )
+  colNames = c("ant", "ts", "fullID", "freq", "freqsd", "sig", "sigsd", "noise",  "runID", "posInRun", "slop", "burstSlop", "antFreq", "tsOrig",  "bootnum", "runLen", "id", "tagProj", "nomFreq", "lat", "lon",  "alt", "depYear", "proj", "site", "recv", "sp", "label", "gain", "dbm")
   
   cumRunID = 0
   mergeQuery = ""
@@ -64,22 +64,12 @@ mergeRDS = function(year) {
         x$runID = x$runID + cumRunID
         cumRunID = max(x$runID)
 
-        ## tag IDs above 8000 are cross-frequency (detections at 166.380 of tags at 166.300)
-        ## mark these and correct the id
-        x$crossFreq = x$id > 8000
         x$id = x$id %% 1000
 
         ## generate nominal antenna frequency
         if (! "nomFreq" %in% names(x))
             x$nomFreq = ifelse(x$antFreq > 166.37, 166.380, 166.300)
-        
-        ## generate a missing tagFreq column, which is the same as nomFreq (the
-        ## nominal receiver frequency), except for cross frequency detections
-        
-        ## generate missing tagFreq column
-        if (! "tagFreq" %in% names(x))
-            x$tagFreq = x$nomFreq - ifelse(x$crossFreq, 0.080, 0)
-        
+                        
         ## add missing gain column
         if (! "gain" %in% names(x))
             x$gain = 0
@@ -100,15 +90,11 @@ mergeRDS = function(year) {
             x$alt[noLL] = NA
         }
         
-        ## generate missing fullSite column
-        if (! "fullSite" %in% names(x))
-            x$fullSite = as.factor(sprintf("%.1f, %.1f (%s - %s)", round(x$lat, 1), round(x$lon, 1), x$site, x$proj))
-
         ## generate correct species code
-        x$sp = tagdeps[sprintf("%s#%03d@%.3f", x$tagProj, x$id, x$tagFreq), "spcd"]
+        x$sp = tagdeps[sprintf("%s#%03d@%.3f", x$tagProj, x$id, x$nomFreq), "spcd"]
 
         ## generate clean tag label
-        x$label = sprintf("%s %03d @ %.3f-%s", x$sp, x$id, x$nomFreq - ifelse(x$crossFreq, 0.080, 0), x$tagProj)
+        x$label = sprintf("%s %03d @ %.3f-%s", x$sp, x$id, x$nomFreq, x$tagProj)
 
         ## create / connect to database
 
@@ -144,11 +130,8 @@ mergeRDS = function(year) {
  recv TEXT,
  sp TEXT,
  label TEXT,
- fullSite TEXT,
  gain REAL,
- dbm REAL,
- crossFreq INTEGER,
- tagFreq REAL 
+ dbm REAL
  )"
 )
 
@@ -198,11 +181,8 @@ CREATE TABLE tags
  recv TEXT,
  sp TEXT,
  label TEXT,
- fullSite TEXT,
  gain REAL,
- dbm REAL,
- crossFreq INTEGER,
- tagFreq REAL 
+ dbm REAL
  );",
 
   mergeQuery,  ## append one merge query per site database
@@ -211,7 +191,6 @@ CREATE TABLE tags
 "create index tags_ts on tags ( ts );
 create index tags_fullID on tags ( fullID );
 create index tags_idproj on tags ( id, tagProj );
-create index tags_fullSite on tags ( fullSite );
 create index tags_tagProj on tags ( tagProj );
 create index tags_id on tags ( id );
 create index tags_site on tags ( site );

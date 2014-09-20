@@ -41,6 +41,7 @@ export (
     rawPulses,
     readDTA,
     readGPX,
+    SGify,
     sgPowerTodBm,
     siteDB,
     siteFile,

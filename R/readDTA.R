@@ -68,7 +68,11 @@ readDTA = function(filename="", lines=NULL) {
     piece.name = names(pieces)[ip] ## can be repeated
 
     ## to keep line counts valid, retain blank lines within tables as rows of NA
-    tab = read.table(textConnection(pieces[ip]), as.is=TRUE, blank.lines.skip=FALSE)
+    
+    con = textConnection(pieces[ip])
+    tab = read.table(con, as.is=TRUE, blank.lines.skip=FALSE)
+    close(con)
+    
     switch(piece.name,
            serial_no = {
              serno = tab[1,1]

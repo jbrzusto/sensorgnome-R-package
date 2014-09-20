@@ -18,7 +18,7 @@ SGify = function(tags, year, proj, site, recv) {
   parts = regexpr(pattern="(?:(?<proj>[^#]+))(?:#)(?:(?<id>[^@]+))(?:@)(?:(?<freq>[^:]+))(?::)(?:(?<bi>.+))$", tags$id, perl=TRUE)
 
   tmp = attr(parts, "capture.start")[,"id"]
-  id = substr(tags$id, tmp, attr(parts, "capture.length")[,"id"] + tmp - 1)
+  id = as.integer(substr(tags$id, tmp, attr(parts, "capture.length")[,"id"] + tmp - 1))
   
   tmp = attr(parts, "capture.start")[,"proj"]
   tagProj = substr(tags$id, tmp, attr(parts, "capture.length")[,"proj"] + tmp - 1)
@@ -37,8 +37,7 @@ SGify = function(tags, year, proj, site, recv) {
   ##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"       "sigsd"     "noise"    
   ##  [9] "runID"     "posInRun"  "slop"      "burstSlop" "antFreq"   "tsOrig"    "bootnum"   "runLen"   
   ## [17] "id"        "tagProj"   "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
-  ## [25] "site"      "recv"      "sp"        "label"     "fullSite"  "gain"      "dbm"       "crossFreq"
-  ## [33] "tagFreq"
+  ## [25] "site"      "recv"      "sp"        "label"     "gain"      "dbm"       
 
   ## where fullID is as id above
 
@@ -57,7 +56,7 @@ SGify = function(tags, year, proj, site, recv) {
     burstSlop = tags$burstSlop,
     antFreq = tags$antFreq,
     tsOrig = tags$ts,
-    bootnum = NA,
+    bootnum = 0,
     runLen = tags$runLen,
     id = id,
     tagProj = tagProj,
@@ -71,11 +70,8 @@ SGify = function(tags, year, proj, site, recv) {
     recv = recv,
     sp = NA, ## FIXME: when the deployment DB exists, do this: depInfo(tagProj, id, tags$antFreq, tags$ts, year=year)
     label = NA,
-    fullSite = NA,
     gain = tags$gain,
-    dbm = lotekPowerTodBm(tags$sig, tags$gain),
-    crossFreq = FALSE,
-    tagFreq = tags$antFreq
+    dbm = lotekPowerTodBm(tags$sig, tags$gain)
     )
   rv$label = as.factor(sprintf("%s %03d @ %.3f-%s", rv$sp, rv$id, rv$nomFreq, rv$tagProj))
   class(rv$ts) = c("POSIXt", "POSIXct")

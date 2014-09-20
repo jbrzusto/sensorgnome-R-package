@@ -3,7 +3,7 @@ Title: Tools for the sensorgnome project.
 Description: Process data from sensorgnomes and other devices such as Lotek
     telemetry receivers.
 URL: https://sensorgnome.org/Post-Processing_Telemetry_Data
-Version: 1.0.27
+Version: 1.0.29
 Maintainer: John Brzustowski <jbrzusto@fastmail.fm>
 Author: John Brzustowski <jbrzusto@fastmail.fm>
 Depends:
