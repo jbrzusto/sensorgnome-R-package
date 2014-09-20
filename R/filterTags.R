@@ -8,18 +8,24 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
   tmp = tempfile("dtaout")
   write.table(x$tags[!is.na(x$tags[,1]),], tmp, row.names=FALSE, col.names=FALSE, sep=",")
   exefile = file.path(path.package("sensorgnome"), "bin", "filter_tags")
+  tmp2 = tempfile("filterout")
   if (.Platform$OS.type != "unix")
     exefile = paste(exefile, ".exe", sep="")  
-  p = pipe(sprintf('%s -c %d -b %d -B %d -S %d "%s" "%s"',
-    exefile, confirm, slop, slopExpand, maxMiss, tagDB, tmp))
-  out = readLines(p)
-  close(p)
+  system(sprintf('%s -c %d -b %d -B %d -S %d "%s" "%s" > %s',
+    exefile, confirm, slop, slopExpand, maxMiss, tagDB, tmp, tmp2))
 
   file.remove(tmp)
 
-  out = read.csv(textConnection(out), as.is=TRUE)
+  fail = FALSE
+  if (! file.exists(tmp2)) {
+      fail = TRUE
+  } else {
+      out = read.csv(tmp2, as.is=TRUE)
+      if (nrow(out) == 0)
+          fail = TRUE
+  }
 
-  if (nrow(out) == 0) {
+  if (fail) {
     stop(sprintf(
 "There were no runs of tags found in this file under the current filtering criteria:
    confirm = %d
@@ -30,6 +36,7 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
 ",
       confirm, maxMiss, slop, slopExpand, basename(tagDB)))
   }
+  file.remove(tmp2)
   
   ## re-number runs in order from 1
   out$runID = as.numeric(as.factor(out$runID))
