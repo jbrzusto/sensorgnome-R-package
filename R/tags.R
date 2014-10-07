@@ -1,4 +1,4 @@
-tags = function(where, year = year(Sys.date() - 120 * 24 * 3600), filter = "and ((freqsd is null or freqsd < 0.1) and runLen > 2)", dbFile=NULL) {
+tags = function(where, year = lubridate::year(Sys.time() - 120 * 24 * 3600), filter = "and ((freqsd is null or freqsd < 0.1) and runLen > 2)", dbFile=NULL) {
   if (missing(where))
     stop("Need to specify a subset to select, e.g. \"proj='Taylr' and sp='IPSP'\"")
   require(RSQLite)
