@@ -35,9 +35,9 @@ SGify = function(tags, year, proj, site, recv) {
   ## and we need these:
 
   ##  [1] "ant"       "ts"        "fullID"    "freq"      "freqsd"    "sig"       "sigsd"     "noise"    
-  ##  [9] "runID"     "posInRun"  "slop"      "burstSlop" "antFreq"   "tsOrig"    "bootnum"   "runLen"   
-  ## [17] "id"        "tagProj"   "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
-  ## [25] "site"      "recv"      "sp"        "label"     "gain"      "dbm"       
+  ##  [9] "runID"     "posInRun"  "slop"      "burstSlop" "antFreq"   "depID"     "tsOrig"    "bootnum"   "runLen"   
+  ## [18] "id"        "tagProj"   "nomFreq"   "lat"       "lon"       "alt"       "depYear"   "proj"     
+  ## [26] "site"      "recv"      "sp"        "label"     "gain"      "dbm"       
 
   ## where fullID is as id above
 
@@ -55,6 +55,7 @@ SGify = function(tags, year, proj, site, recv) {
     slop = NA,
     burstSlop = tags$burstSlop,
     antFreq = tags$antFreq,
+    depID = 1,
     tsOrig = tags$ts,
     bootnum = 0,
     runLen = tags$runLen,
