@@ -61,7 +61,7 @@
 #' 
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
-tags = function(where, dbFile = NULL, filter = "and ((freqsd is null or freqsd < 0.1) and runLen > 2)", year) {
+tags = function(where="1=1", dbFile = NULL, filter = "and ((freqsd is null or freqsd < 0.1) and runLen > 2)", year) {
   if (missing(where) && isSGServer())
     stop("On an SG Server, you need to specify a subset to select, e.g. \"proj='Taylr' and sp='IPSP'\"")
   require(RSQLite)
