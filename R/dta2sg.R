@@ -29,7 +29,7 @@ dta2sg = function(
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
 
   ## use the year of the first detection as the deployment year.
-  rv = SGify(out$tags, as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")), myproj, site, out$recv)
+  rv = SGify(out$tags, as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")), myproj, site, dtaout$recv)
   
   ## split output datasets between my and others' projects, or put all in the same file
   
@@ -45,5 +45,5 @@ dta2sg = function(
     cat(sprintf("Wrote all tags (yours and other projects') to file:\n   %s\n", outfile))
   }
 
-  return(invisible(rv))
+  return(invisible(structure(rv, recv=dtaout$recv, tsRange=range(dtaout$tags$ts, na.rm=TRUE))))
 }
