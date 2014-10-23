@@ -65,8 +65,8 @@ plotGlobalTags = function(x, tagsPerPanel=5, panelsPerRow=3, siteLatThreshold=20
     ## plotting character
     plotChar = 4
     
-    if (length(siteLat) <= 20) {
-        ## if 20 sites or fewer, plot by site
+    if (length(siteLat) <= siteLatThreshold) {
+        ## if siteLatThreshold sites or fewer, plot by site
         xyplot(sitefact~ts|tagGroupFactor, groups=label, data=xx, type="b", pch=plotChar,
                layout = c(panelsPerRow, nr),
                panel = function(x, y, groups, subscripts, ...) {
@@ -86,7 +86,7 @@ plotGlobalTags = function(x, tagsPerPanel=5, panelsPerRow=3, siteLatThreshold=20
                ylab="Site",
                )
     } else {
-        ## > 20 sites, plot by latitude, don't group
+        ## > siteLatThreshold sites, plot by latitude, don't group
         xyplot(lat~ts|tagGroupFactor, groups=label, data=xx, type="b", pch=plotChar, lty=3,
                layout = c(panelsPerRow, nr),
                panel = function(x, y, groups, subscripts, ...) {
