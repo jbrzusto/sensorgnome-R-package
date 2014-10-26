@@ -27,6 +27,8 @@ dta2sg = function(
   dtalines = readLines(DTAfile)
   dtaout = readDTA(lines=dtalines)
   out = filterTags(dtaout, tagDB, confirm, maxMiss, slop, slopExpand)
+  if (is.null(out$tags))
+      return(invisible(structure(list(), recv=dtaout$recv, tsRange=range(dtaout$tags$ts, na.rm=TRUE))))
 
   ## use the year of the first detection as the deployment year.
   rv = SGify(out$tags, as.numeric(strftime(structure(min(out$tags$ts), class="POSIXct"), "%Y")), myproj, site, dtaout$recv)

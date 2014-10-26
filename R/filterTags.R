@@ -26,7 +26,7 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
   }
 
   if (fail) {
-    stop(sprintf(
+    warning(sprintf(
 "There were no runs of tags found in this file under the current filtering criteria:
    confirm = %d
    maxMiss = %d
@@ -35,6 +35,7 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
    database = %s
 ",
       confirm, maxMiss, slop, slopExpand, basename(tagDB)))
+      return(list(recv=x$recv, tags=NULL))
   }
   file.remove(tmp2)
   
