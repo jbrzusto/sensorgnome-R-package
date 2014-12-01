@@ -41,6 +41,23 @@ SGify = function(tags, year, proj, site, recv) {
 
   ## where fullID is as id above
 
+  ## interpolate lat/lon over time, so that records with 999s surrounded by records with valid lat/lon
+  ## will obtain reasonable values; get a list of okay and bogus records
+  
+  bogus = (tags$lat == 999)
+  okay = ! bogus
+  tags$lat[bogus] = NA
+  tags$lon[bogus] = NA
+  
+  num.okay = sum(okay)
+  if (num.okay > 2) {
+     tags$lat = approx(tags$ts[okay], tags$lat[okay], tags$ts, rule=2)$y
+     tags$lon = approx(tags$ts[okay], tags$lon[okay], tags$ts, rule=2)$y
+  } else if (num.okay == 1) {
+     tags$lat = tags$lat[okay]  
+     tags$lon = tags$lon[okay]  
+  }
+
   rv = data.frame(
     ant = tags$ant,
     ts = tags$ts,
