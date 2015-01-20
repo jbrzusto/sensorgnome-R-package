@@ -45,7 +45,7 @@ dateStem = function(dates, formats=c("", "%Y", "%Y %b", "%Y %b %d", "%Y %b %d, %
 
     parts = as.POSIXlt(c(b, e))
 
-    n = which(lapply(unclass(parts), diff)[c("year", "mon", "mday", "hour", "min", "sec")] != 0)[1]
+    n = which(lapply(unclass(parts)[c("year", "mon", "mday", "hour", "min", "sec")], diff) != 0)[1]
 
     if (is.na(n) || n > length(formats))
         n = length(formats)
