@@ -31,6 +31,7 @@ getLabel = function(fullID, year, tagDepFile=NULL) {
     fid = as.character(fullID)
     if (file.exists(tagDepFile)) {
         tagDeps = read.csv(tagDepFile, as.is=TRUE)
+        tagDeps = subset(tagDeps, ! duplicated(tagDeps$fullID))
         rownames(tagDeps) = tagDeps$fullID
         sp = tagDeps[fid, "sp"]
     } else {
