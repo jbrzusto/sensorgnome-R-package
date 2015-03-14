@@ -56,7 +56,8 @@ export (
     siteFile,
     siteGPS,
     sitePath,
-    siteSQL,    
+    siteSQL,
+    splitToDF,
     sql,
     tags,
     timePins
