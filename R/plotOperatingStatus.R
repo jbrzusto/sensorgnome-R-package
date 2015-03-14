@@ -23,8 +23,18 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     start_ts = ymd(sprintf("%d-01-01", year))
     a$files.per.hour = subset(a$files.per.hour, ts >= start_ts & ts <= start_ts + 3 * 365.25 * 24 * 3600)
     timerange = range(a$files.per.hour$ts)
-    
+
+    ## make sure we have a non-empty range of dates
     xx = trunc(a$files.per.hour$ts, "day")
+    rangex = range(xx)
+    if (diff(rangex) == 0) {
+        xx = trunc(a$files.per.hour$ts, "hour")
+        rangex = range(xx)
+        if (diff(rangex) == 0) {
+            rangex = rangex + c(0, 1)
+        }
+    }
+        
     yy = hour(a$files.per.hour$ts)
     
     plot(xx,
@@ -32,11 +42,12 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
          pch = ' ',
          col = "green",
          ylim = c(0, 24),
+         xlim = as.numeric(rangex),
          main = c(sprintf("%d %s %s", year, proj, site), "Receiver status based on raw data file timestamps and GPS fixes"),
          xlab = "",
          ylab = "Hour of Day (GMT)",
-         sub = sprintf("Date (GMT; %d onwards)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nBlack *: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
-             , year, a$num.boots)
+         sub = sprintf("Date (begins %s GMT)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nBlack *: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
+             , dateStem(rangex), a$num.boots)
          )
 
     rect (min(xx), min(yy), max(xx), max(yy)+1, col="#ff4040")
