@@ -45,6 +45,7 @@ export (
     projPath,
     putRegTags,
     publicDTA,
+    qWarn,
     rad,
     rawPulses,
     readDTA,

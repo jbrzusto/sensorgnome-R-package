@@ -36,11 +36,12 @@
 #' 
 #' @return a data.frame of tag detections, sorted by increasing time.
 #'
-#' @note As of October 2014, the .sqlite format will be the preferred format for
+#' @note
+#' As of October 2014, the .sqlite format will be the preferred format for
 #' distribution of detection data by the sensorgnome.org project
 #'
 #' @examples
-#'
+#'\dontrun{
 #' ## Return all filtered detections from a database file.
 #'
 #'   t = tags("path/to/my/data/2014_peterson_monhegan_alltags.sqlite")
@@ -58,7 +59,8 @@
 #' ## of tag 480 from the Taylor project
 #'
 #'   t = tags("id=480 and tagProj='Taylr'")
-#' 
+#'
+#'}
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
 tags = function(where="1=1", dbFile = NULL, filter = "and ((freqsd is null or freqsd < 0.1) and runLen > 2)", year) {
