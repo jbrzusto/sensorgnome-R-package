@@ -22,7 +22,7 @@
 fixTimeJumps = function (recvDB, ts, bootnum, depID) {
   if (!file.exists(recvDB))
     stop("The file ", recvDB, " does not exist")
-  con = dbConnect("SQLite", recvDB)
+  con = dbConnect(RSQLite::SQLite(), recvDB)
   on.exit(dbDisconnect(con))
 
   if (! "timeJumps" %in% dbListTables(con)) {

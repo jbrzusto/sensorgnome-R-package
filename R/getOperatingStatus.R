@@ -25,7 +25,7 @@ getOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     if (length(f) == 0)
         stop("invalid combination of site, project, year")
 
-    con = dbConnect("SQLite", f)
+    con = dbConnect(RSQLite::SQLite(), f)
     fts = dbGetQuery(con, "select bootnum, min(ts) as ts, count(ts) as num from files group by bootnum, round(ts/3600 - 0.5)*3600 order by ts")
     gps = dbGetQuery(con, "select distinct min(ts) as ts, lat, lon from gps group by round(ts/3600-0.5)*3600 order by ts")
     dbDisconnect(con)

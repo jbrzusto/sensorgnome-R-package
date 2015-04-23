@@ -3,7 +3,7 @@
 ##
 
 getStatus = function(year, proj, site) {
-  con = dbConnect("SQLite", sprintf("/SG/%d_receiver_status.sqlite", year))
+  con = dbConnect(RSQLite::SQLite(), sprintf("/SG/%d_receiver_status.sqlite", year))
   rv = sql(con, "select * from status where site='%s' and proj='%s' order by ts", site, proj)
   if (nrow(rv) == 0) {
     if (sql(con, "select count(ts) from status where proj = '%s' limit 1", proj)[1,1] == 0) {

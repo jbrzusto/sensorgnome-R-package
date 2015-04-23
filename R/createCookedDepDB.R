@@ -7,7 +7,7 @@ createCookedDepDB = function(con, depName) {
   
   ## allow con to be a filename
   if (is.character(con)) {
-    con = dbConnect("SQLite", con)
+    con = dbConnect(RSQLite::SQLite(), con)
     on.exit(dbDisconnect(con))
   }
 

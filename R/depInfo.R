@@ -28,7 +28,7 @@ depInfo = function(proj, id, freq, ts, year = 2013, info="spcd") {
     stop(paste("Invalid info columns selected; must be chosen from ", sprintf(validCols, collapse=", ")))
   
   library(RSQLite)
-  con = dbConnect("SQLite", sprintf("/SG/%d_tag_deployments.sqlite", year))
+  con = dbConnect(RSQLite::SQLite(), sprintf("/SG/%d_tag_deployments.sqlite", year))
 
   ## create a temporary in-memory database to hold the temporary table for the join
   sql(con, "attach ':memory:' as mem")

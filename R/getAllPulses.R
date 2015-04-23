@@ -18,7 +18,7 @@ getAllPulses = function(dbfile) {
   if (! grepl(".sqlite$", dbfile, ignore.case=TRUE))
     dbfile = paste(dbfile, ".sqlite", sep="");
   
-  con = dbConnect("SQLite", dbfile)
+  con = dbConnect(RSQLite::SQLite(), dbfile)
     
   tables = dbListTables(con)
 

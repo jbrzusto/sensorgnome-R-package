@@ -91,7 +91,7 @@ tags = function(where="1=1", dbFile = NULL, filter = "and ((freqsd is null or fr
   if (!file.exists(dbFile))
       stop("non-existent tag detections database file: ", dbFile)
   .lastSGDataFile <<- dbFile
-  con = dbConnect("SQLite", dbFile)
+  con = dbConnect(RSQLite::SQLite(), dbFile)
   x = dbGetQuery(con, sprintf("select * from tags where %s %s", where, filter))
   x = x[order(x$ts),]
   class(x$ts) = c("POSIXt", "POSIXct")

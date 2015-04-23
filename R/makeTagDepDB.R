@@ -38,7 +38,7 @@ makeTagDepDB = function(year=2013) {
   
   ## write out the converted table to an sqlite database
   library(RSQLite)
-  con = dbConnect("SQLite", db)
+  con = dbConnect(RSQLite::SQLite(), db)
   dbWriteTable(con, "tagDeps", x, row.names=FALSE, overwrite=TRUE)
 
   ## add an index for fast lookup by the tagID, project, tagFreq triplet

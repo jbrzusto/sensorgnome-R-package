@@ -15,7 +15,7 @@
 
 getOperatingPeriods = function(f, jumpsize=600) {
 
-  con = dbConnect("SQLite", f)
+  con = dbConnect(RSQLite::SQLite(), f)
   gps = dbGetQuery(con, "select * from gps order by ts")
   dbDisconnect(con)
   

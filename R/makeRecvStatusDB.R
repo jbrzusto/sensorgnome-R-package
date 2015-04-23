@@ -19,7 +19,7 @@ makeRecvStatusDB = function(year, quiet=TRUE) {
   files = getAllSiteFiles(year, ".sqlite")
 
   db = sprintf("/SG/%d_receiver_status.sqlite", year)
-  con = dbConnect("SQLite", db)
+  con = dbConnect(RSQLite::SQLite(), db)
   dbGetQuery(con, "drop table if exists status")
   dbGetQuery(con, "
 create table status (

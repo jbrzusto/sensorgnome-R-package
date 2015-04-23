@@ -98,7 +98,7 @@ mergeRDS = function(year) {
 
         ## create / connect to database
 
-        con = dbConnect("SQLite", siteSQLiteFile)
+        con = dbConnect(RSQLite::SQLite(), siteSQLiteFile)
         
         dbGetQuery(con, "drop table if exists tags")
         dbGetQuery(con, "CREATE TABLE tags \
