@@ -1,11 +1,10 @@
 #' Extract fields from a character vector into a dataframe
 #' using a regular expression.
 #'
-#' Given a regular expression with named fields and a string vector,
-#' extract the named fields from each element of the string vector,
-#' returning the result as a dataframe.  Each columns is a character
-#' vector corresponding to a named field, and each row corresponds to
-#' an element of the string vector.
+#' Read a dataframe from a character vector, using a regular
+#' expression with named fields to extract items from each string.
+#' The named fields become columns in the result, and each item in the
+#' input vector yields a row in the result.
 #' 
 #' @param rx: Perl-type regular expression with named fields, as described
 #' in \code{?regex}
@@ -45,7 +44,7 @@
 #' and we wish to extract timestamps and pre_age and post_age, as a
 #' data.frame, we can use this regular expression:
 #'
-#' rx = ".*pps-gpio: PPS @@ (?<ts>[0-9]+\\.[0-9]*): pre_age = (?<pre>[0-9]+), post_age = (?<post>[0-9]+)$"
+#' rx = "pps-gpio: PPS @ (?<ts>[0-9]+\\.[0-9]*): pre_age = (?<pre>[0-9]+), post_age = (?<post>[0-9]+)"
 #'
 #' splitToDF(s, rx) then gives:
 #' 
@@ -59,38 +58,38 @@
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
 splitToDF = function(rx, s, guess=TRUE, ...) {
-    ## do the matching
+
+    rv = NULL
+
     v = gregexpr(rx, s, perl=TRUE)
 
-    ## trivial result
-    if (length(v) == 0)
-        return (NULL)
+    ## non-trivial result
+    if (length(v) > 0) {
+        ## get the names of captured fields
+        nm = attr(v[[1]], "capture.names")
 
-    ## get the names of captured fields
-    nm = attr(v[[1]], "capture.names")
+        ## allocate a return value list 
+        rv = vector("list", length(nm))
 
-    ## allocate a return value list 
-    rv = vector("list", length(nm))
+        ## get starting positions and lengths for each match in each item
+        ## Note that rows correspond to named fields, columns to items of s.
+        starts = matrix(sapply(v, function(w) attr(w, "capture.start")), nrow = length(nm))
+        lengths = matrix(sapply(v, function(w) attr(w, "capture.length")), nrow = length(nm))
 
-    ## get starting positions and lengths for each match in each item
-    ## Note that rows correspond to named fields, columns to items of s.
-    starts = matrix(sapply(v, function(v) attr(v, "capture.start")), nrow = length(nm))
-    lengths = matrix(sapply(v, function(v) attr(v, "capture.length")), nrow = length(nm))
+        ## for each named field, extract the matched region of each item of s
+        for (i in seq(along=nm))
+            rv[[i]] = substring(s, starts[i, ], starts[i, ] + lengths[i, ] - 1)
 
-    ## for each named field, extract the matched region of each item of s
-    for (i in seq(along=nm))
-        rv[[i]] = substring(s, starts[i, ], starts[i, ] + lengths[i, ] - 1)
-
-    if (guess)
-        ## guess column types via read.csv()
-        rv = read.csv(textConnection(do.call(paste, c(rv, sep=","))), header=FALSE, ...)
-    else
-        ## preserve columns as strings
-        rv = as.data.frame(rv, stringsAsFactors=FALSE)
-    
-    ## assign column names
-    names(rv) = nm
-    
+        if (guess)
+            ## guess column types via read.csv()
+            rv = read.csv(textConnection(do.call(paste, c(rv, sep=","))), header=FALSE, ...)
+        else
+            ## preserve columns as strings
+            rv = as.data.frame(rv, stringsAsFactors=FALSE)
+        
+        ## assign column names
+        names(rv) = nm
+    }
     return (rv)
 }
 
