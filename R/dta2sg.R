@@ -2,15 +2,15 @@
 ## file compatible with sensorgnome data.
 
 dta2sg = function(
-  DTAfile = NULL, ## path to input file
-  tagDB = NULL,   ## path to public tag database file
-  myproj = NULL,  ## project code
-  site = NULL,    ## site code
-  confirm = 3,    ## minimum bursts to confirm a run
-  maxMiss = 20,   ## maximum consecutive missing bursts in a run
-  slop = 4,       ## slop between measured and registered burst intervals, in milliseconds
-  slopExpand = 0, ## amount slop increases for each missed burst, in milliseconds
-  split = TRUE    ## if TRUE, write separate files for tags from this and from all other projects
+  DTAfile = NULL,   ## path to input file
+  tagDB = NULL,     ## path to public tag database file
+  myproj = NULL,    ## project code
+  site = NULL,      ## site code
+  confirm = 3,      ## minimum bursts to confirm a run
+  maxMiss = 20,     ## maximum consecutive missing bursts in a run
+  slop = 4,         ## slop between measured and registered burst intervals, in milliseconds
+  slopExpand = 1.5, ## amount slop increases for each missed burst, in milliseconds
+  split = TRUE      ## if TRUE, write separate files for tags from this and from all other projects
   ) {
 
   DTAfile = chooseDTAFile(DTAfile)

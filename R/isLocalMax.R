@@ -51,30 +51,106 @@ isLocalMax = function(x, y, dx=1) {
 
     if (any(diff(x) < 0))
         stop("x coordinates must be in non-decreasing order")
-    
-    ismax = rep(FALSE, length(x))  ## assume no local maxima
 
-    mi = 1     ## index of most recent maximum candidate
-    my = y[1]  ## y-coordinate of most recent maximum candidate
-    mx = x[1]  ## x-coordinate of most recent maximum candidate
+    ## We make two passes, one left to right, and one right to left.
+    ## A point is a local maximum iff it succeeds on each pass.
+    ## Success on a single pass is achieved iff we reach dx past the
+    ## point (or the end of the list of points) without finding a
+    ## higher point.
+
+    ## Each pass starts with one end point as a candidate for local
+    ## max, and examines consecutive points (in the pass direction)
+    ## one at a time.
+    ##
+    ## One of four conditions holds:
+    ##
+    ## a) the examined point is <= dx away, and less than the candidate.
+    ##    Continue examining points, leaving the candidate as-is.
+    ##
+    ## b) the examined point is more than dx away from the candidate.
+    ##    The candidate succeeds.  The examined point is the new candidate.
+    ##
+    ## c) the examined point is <= dx away from the candidate but
+    ##    not less than the candidate.
+    ##    The candidate fails.  The examined point is the new candidate.
+    ##
+    ## d) the end of the list of points has been reached.
+    ##    The candidate succeeds.
+    ##
+    ## In cases b and c, we implicitly fail any points between the
+    ## examined point and the and the (old) candidate (aka "intervening
+    ## points") because:
+    ##
+    ## - in case b, the intervening points are within dx of the candidate
+    ##   and smaller than it
+    ##
+    ## - in case c, the intervening points are within dx of the examined
+    ##   point and smaller than it.
+    ##
+    ## This is an optimization which obviates having to try each point
+    ## as a candidate, since there's no reason to let a point succeed
+    ## a pass if we know it fails the opposite pass.
+
+    s1 = s2 = rep(FALSE, length(x))  ## success on passes 1 and 2
+
+    mi = 1     ## index of most recent candidate
+    my = y[1]  ## y-coordinate of most recent candidate
+    mx = x[1]  ## x-coordinate of most recent candidate
+
+    ## forward pass:
     
     for (i in 2:length(x)) {
-        if (x[i] - mx <= dx && y[i] <= my)
-            ## this row is too close to the previous
-            ## max and is not larger, so skip it
+        if (x[i] - mx <= dx && y[i] < my)
+            ## case a)
+            ## this point is a neighbour of the candidate
+            ## but is smaller, so it doesn't disqualify
+            ## the candidate
             next
         
         if (x[i] - mx > dx) {
-            ## we're far enough away from the last max
-            ## that it can be kept
-            ismax[mi] = TRUE
-
+            ## case b)
+            ## we're far enough away from the candidate
+            ## so it succeeds
+            s1[mi] = TRUE
         }
-        ## either way, this row is now the new candidate for a max
+        ## case c: s1[mi] = FALSE, but it's initialized that way
+        
+        ## cases b, c: make this point the new candidate
         mi = i
         mx = x[i]
         my = y[i]
     }
-    ismax[mi] = TRUE
-    return (ismax)
+    ## case d: the candidate passes
+    s1[mi] = TRUE
+
+    ## reverse pass:
+
+    mi = length(x)
+    mx = x[mi]
+    my = y[mi]
+    for (i in (length(x) - 1):2) {
+        if (mx - x[i] <= dx && y[i] < my)
+            ## case a)
+            ## this point is a neighbour of the candidate
+            ## but is smaller, so it doesn't disqualify
+            ## the candidate
+            next
+        
+        if (mx - x[i] > dx) {
+            ## case b)
+            ## we're far enough away from the candidate
+            ## so it succeeds
+            s2[mi] = TRUE
+        }
+        ## case c: s2[mi] = FALSE, but it's initialized that way
+        
+        ## cases b, c: make this point the new candidate
+        mi = i
+        mx = x[i]
+        my = y[i]
+    }
+    ## case d: the candidate passes
+    s2[mi] = TRUE
+
+    return (s1 & s2)
 }

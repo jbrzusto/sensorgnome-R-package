@@ -8,7 +8,13 @@
 #'
 #' @param year deployment year (defaults to current year)
 #' 
-#' @return nothing
+#' @return a data frame with these columns
+#' \describe{
+#' \item{files.per.hour}{data frame with at most one record per hour, giving number of raw data files recorded and bootcount}
+#' \item{gps.fix}{data frame with at most hourly true GPS fix (i.e. repeated 'stuck' fixes are not reported)}
+#' \item{undated.period}{the number of days of data recorded with dates beginning with 1 Jan 2000; these are periods when the GPS had not set the clock}
+#' \item{num.boots}{the number of times the system was restarted during the operating period}
+#'}
 #'
 #' Plots to the current graphics device.
 #'
@@ -27,10 +33,10 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     ## make sure we have a non-empty range of dates
     xx = trunc(a$files.per.hour$ts, "day")
     rangex = range(xx)
-    if (diff(rangex) == 0) {
+    if (isTRUE(diff(rangex) == 0)) {
         xx = trunc(a$files.per.hour$ts, "hour")
         rangex = range(xx)
-        if (diff(rangex) == 0) {
+        if (isTRUE(diff(rangex) == 0)) {
             rangex = rangex + c(0, 1)
         }
     }
@@ -61,5 +67,6 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     rb = a$files.per.hour$ts[which(c(FALSE, diff(a$files.per.hour$bootnum) > 0))]
     points(trunc(rb, "day")+12*3600, hour(rb), pch="*", col="black")
     points(a$files.per.hour$ts, a$files.per.hour$bootnum %% 24, type="s", col="black")
+    return(a)
 }
 

@@ -18,7 +18,7 @@
 
 getProjects = function(year = lubridate::year(Sys.time() - 3*30*24*3600)) {
     top = file.path("/", "SG", "contrib", year)
-    maybe = dir(top, pattern="^[-_a-z0-9]+", full.names=TRUE)
+    maybe = dir(top, pattern="^[-A-Z_a-z0-9']+", full.names=TRUE)
     projcodefiles = file.path(maybe, "PROJCODE.TXT")
     keep = file.exists(projcodefiles)
     return (structure(sapply(projcodefiles[keep], function(f) readLines(f)), names=basename(maybe)[keep]))

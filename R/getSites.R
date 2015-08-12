@@ -8,7 +8,7 @@ getSites = function(proj = NULL, year = lubridate::year(Sys.time())) {
     rv = NULL
     for (p in proj) {
         top = projPath(p, year)
-        maybe = dir(top, pattern="^[-_a-z0-9]+", full.names=TRUE)
+        maybe = dir(top, pattern="^[-A-Z_a-z0-9']+", full.names=TRUE)
         sitecodefiles = file.path(maybe, "SITECODE.TXT")
         goodsites = basename(maybe)[file.exists(sitecodefiles)]
         if (length(proj) > 1)

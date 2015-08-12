@@ -35,14 +35,18 @@ plotGlobalTags = function(x, tagsPerPanel=5, panelsPerRow=3, siteLatThreshold=20
     nr = ceiling(nt / (tagsPerPanel * panelsPerRow))
 
     ## get the mean lat/lon by site
-    coords = subset(xx, lat!=999, c(site, lat, lon))
+    coords = subset(xx, !is.na(lat), c(site, lat, lon))
     siteLat = with(coords, tapply(lat, site, mean))
     siteLon = with(coords, tapply(lon, site, mean))
 
-    siteOrder = order(siteLat)
-    ns = length(siteLat)
-    xx$sitefact = factor(xx$site, levels=names(siteLat)[siteOrder], ordered=TRUE)
-    levels(xx$sitefact) = sprintf("%s (%6.3fN, %6.3fW)", names(siteLat), siteLat, siteLon)[siteOrder]
+    if (length(siteLat) == 0) {
+        xx$sitefact = as.factor(xx$site)
+    } else {
+        siteOrder = order(siteLat)
+        ns = length(siteLat)
+        xx$sitefact = factor(xx$site, levels=names(siteLat)[siteOrder], ordered=TRUE)
+        levels(xx$sitefact) = sprintf("%s (%6.3fN, %6.3fW)", names(siteLat), siteLat, siteLon)[siteOrder]
+    }
 
     ## We want to plot multiple tags per panel, so sort their labels and create a grouping factor
     ## Note that labels are sorted in increasing order by ID

@@ -14,7 +14,7 @@
 #' @return a list with these items:\cr
 #' \describe{
 #' \item{files.per.hour}{data frame with at most one record per hour, giving number of raw data files recorded and bootcount}
-#' \item{gpx.fix}{data frame with at most hourly true GPS fix (i.e. repeated 'stuck' fixes are not reported)}
+#' \item{gps.fix}{data frame with at most hourly true GPS fix (i.e. repeated 'stuck' fixes are not reported)}
 #' \item{undated.period}{the number of days of data recorded with dates beginning with 1 Jan 2000; these are periods when the GPS had not set the clock}
 #' \item{num.boots}{the number of times the system was restarted during the operating period}
 #'}

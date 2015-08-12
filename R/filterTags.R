@@ -11,7 +11,7 @@ filterTags = function(x, tagDB,  confirm = 2, maxMiss = 20, slop = 20, slopExpan
   tmp2 = tempfile("filterout")
   if (.Platform$OS.type != "unix")
     exefile = paste(exefile, ".exe", sep="")  
-  system(sprintf('%s -c %d -b %d -B %d -S %d "%s" "%s" > %s',
+  system(sprintf('%s -c %d -b %g -B %g -S %d "%s" "%s" > %s',
     exefile, confirm, slop, slopExpand, maxMiss, tagDB, tmp, tmp2))
 
   file.remove(tmp)
