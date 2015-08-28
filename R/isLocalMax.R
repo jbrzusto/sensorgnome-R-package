@@ -128,7 +128,7 @@ isLocalMax = function(x, y, dx=1) {
     mi = length(x)
     mx = x[mi]
     my = y[mi]
-    for (i in (length(x) - 1):2) {
+    for (i in (length(x) - 1):1) {
         if (mx - x[i] <= dx && y[i] < my)
             ## case a)
             ## this point is a neighbour of the candidate
