@@ -7,6 +7,8 @@
 #' @param proj project name
 #'
 #' @param year deployment year (defaults to current year)
+#'
+#' @param pngFile full path to output .png filename
 #' 
 #' @return a data frame with these columns
 #' \describe{
@@ -14,13 +16,14 @@
 #' \item{gps.fix}{data frame with at most hourly true GPS fix (i.e. repeated 'stuck' fixes are not reported)}
 #' \item{undated.period}{the number of days of data recorded with dates beginning with 1 Jan 2000; these are periods when the GPS had not set the clock}
 #' \item{num.boots}{the number of times the system was restarted during the operating period}
+#' \item{pulse.counts}{the number of pulses per antenna for each hour}
 #'}
 #'
 #' Plots to the current graphics device.
 #'
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
-plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
+plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time()), pngFile) {
     library(lubridate)
     a = getOperatingStatus(site, proj, year)
 
@@ -40,7 +43,8 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
             rangex = rangex + c(0, 1)
         }
     }
-        
+
+    png(pngFile, width = 300 + diff(rangex) * 30, height = 600, type="cairo-png")
     yy = hour(a$files.per.hour$ts)
     
     plot(xx,
@@ -52,7 +56,7 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
          main = c(sprintf("%d %s %s", year, proj, site), "Receiver status based on raw data file timestamps and GPS fixes"),
          xlab = "",
          ylab = "Hour of Day (GMT)",
-         sub = sprintf("Date (begins %s GMT)\n Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nBlack *: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots"
+         sub = sprintf("Date (begins %s GMT)\n Background colour key: Green: Writing Files and GPS working;    Yellow: Writing Files but GPS stuck;    Red: Not Writing Files\nBlack *: reboot;   Black line: reboot count, wrapping at 24; period shown had %d reboots; Antenna bar indicates pulses were detected that hour."
              , dateStem(rangex), a$num.boots)
          )
 
@@ -67,6 +71,19 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time())) {
     rb = a$files.per.hour$ts[which(c(FALSE, diff(a$files.per.hour$bootnum) > 0))]
     points(trunc(rb, "day")+12*3600, hour(rb), pch="*", col="black")
     points(a$files.per.hour$ts, a$files.per.hour$bootnum %% 24, type="s", col="black")
+
+    pc = a$pulse.counts
+    cols = c("#0080ff", "#ff7f00", "#00ffff", "#ff00ff", "#8080ff","#ffff80", "#ffffff")
+    if (! is.null(pc)) {
+        pc$n = as.integer(as.factor(pc$pcode))
+        pc$col = cols[pc$n]
+        pc$x1 = trunc(pc$ts, "day") + (pc$n - 1) * 3600 * 4
+        pc$y1 = hour(pc$ts)
+        rect(pc$x1, pc$y1, pc$x1+3600*4, pc$y1+1, col=pc$col, border=NA)
+        legend(rangex[1] - 30*3600, 12, fill=cols, border=cols, legend=substring(levels(as.factor(pc$pcode)), 2), title="Ant #", bty="n")
+    }
+    dev.off()
+    
     return(a)
 }
 
