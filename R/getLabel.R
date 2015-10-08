@@ -39,5 +39,5 @@ getLabel = function(fullID, year, tagDepFile=NULL) {
         sp = ""
     }
     parts = do.call('rbind', strsplit(fid, "[#@:]", perl=TRUE))
-    return (list(sp=sp, label=sprintf("%s %5g:%s @ %s %s", parts[,1], as.numeric(parts[,2]), parts[,4], parts[,3], sp)))
+    return (list(sp=sp, label=sprintf("%s %s:%s @ %s %s", parts[,1], sub(".0", "  ", fixed=TRUE, sprintf("%5.1f", as.numeric(parts[,2]))), parts[,4], parts[,3], sp)))
 }
