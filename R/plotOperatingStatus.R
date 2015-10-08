@@ -73,8 +73,9 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time()), p
     points(a$files.per.hour$ts, a$files.per.hour$bootnum %% 24, type="s", col="black")
 
     pc = a$pulse.counts
-    cols = c("#0080ff", "#ff7f00", "#00ffff", "#ff00ff", "#8080ff","#ffff80", "#ffffff")
+    cols = c("#0080ff", "#ff7f00", "#00ffff", "#ff00ff", "#106010", "#8080ff", "#ffff80")
     if (! is.null(pc)) {
+        pc = pc[grep("^[a-z][0-9]{1,2}$", pc$pcode, perl=TRUE),]
         pc$n = as.integer(as.factor(pc$pcode))
         pc$col = cols[pc$n]
         pc$x1 = trunc(pc$ts, "day") + (pc$n - 1) * 3600 * 4
