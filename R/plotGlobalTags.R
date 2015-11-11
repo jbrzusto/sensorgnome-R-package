@@ -78,7 +78,7 @@ plotGlobalTags = function(x, tagsPerPanel=5, panelsPerRow=3, siteLatThreshold=20
                    groups = as.factor(as.character(groups[subscripts]))
                    subscripts = 1:length(subscripts)
                    panel.abline(h=1:length(levels(y)), col = gridColour)
-                   daySeq = seq(from = round(min(xx$ts), "day"), to=round(max(xx$ts)), by=5 * 24 * 3600)
+                   daySeq = seq(from = trunc(min(xx$ts), "day"), to=trunc(max(xx$ts), "day"), by=5 * 24 * 3600)
                    panel.abline(v=daySeq, col = gridColour)
                    key = simpleKey(levels(groups), cex=0.8, just=c(0, 0))
                    draw.key(key, TRUE)
@@ -86,7 +86,7 @@ plotGlobalTags = function(x, tagsPerPanel=5, panelsPerRow=3, siteLatThreshold=20
                },
                main="Detection Site vs. Time by Tag",
                sub="Signal strength is superimposed on curves at each site",
-               xlab="Date (GMT)",
+               xlab=paste("Date", dateStem(xx$ts),"(GMT)"),
                ylab="Site",
                )
     } else {
