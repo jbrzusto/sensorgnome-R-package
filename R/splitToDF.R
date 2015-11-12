@@ -1,39 +1,45 @@
-#' Extract fields from a character vector into a dataframe
-#' using a regular expression.
-#'
+#' Use a regular expression to extract fields from each item of
+#' character vector, and return these in a data.frame.
+#' 
 #' Read a dataframe from a character vector, using a regular
-#' expression with named fields to extract items from each string.
-#' The named fields become columns in the result, and each item in the
+#' expression with named fields to extract values from each item.  The
+#' named fields become columns in the result, and each item in the
 #' input vector yields a row in the result.
 #' 
-#' @param rx: Perl-type regular expression with named fields, as described
-#' in \code{?regex}
+#' @param rx: Perl-type regular expression with named fields, as
+#'     described in \code{?regex}
 #' 
-#' @param s: character vector.  Each element must match \code{rx}, i.e.
-#' must have at least one character matching each named field in \code{rx}.
+#' @param s: character vector.  Each element must match \code{rx},
+#'     i.e.  must have at least one character matching each named
+#'     field in \code{rx}.
 #'
+#' @param namedOnly: if \code{TRUE} (the default), return columns only
+#'     for named subexpressions of the regex.  Otherwise, a column is
+#'     returned for every subexpression.
+#' 
 #' @param guess: if \code{TRUE} paste the columns together with
-#' commas, and use read.csv to try return the columns already
-#' converted to appropriate types, e.g. integer or real. Defaults to
-#' \code{TRUE}.
+#'     commas, and use read.csv to try return the columns already
+#'     converted to appropriate types, e.g. integer or real. Defaults
+#'     to \code{TRUE}.
 #' 
 #' @param ...: additional parameters to \code{read.csv()} used when
-#' \code{guess} is \code{TRUE}.
+#'     \code{guess} is \code{TRUE}.
 #' 
 #' @return a data frame.  Each column is a vector and corresponds to a
-#' named field in \code{rx}, going from left to right.  Each item of
-#' \code{s} contributes the corresponding row of the return value.  If
-#' no items of \code{s} match \code{rx}, the function returns
-#' \code{NULL}.  If \code{guess} is \code{TRUE}, columns have been
-#' converted to their guessed types.
+#'     named field in \code{rx}, going from left to right.  Each item
+#'     of \code{s} contributes the corresponding row of the return
+#'     value.  If no items of \code{s} match \code{rx}, the function
+#'     returns \code{NULL}.  If \code{guess} is \code{TRUE}, columns
+#'     have been converted to their guessed types.
 #'
 #' @note This function serves a similar purpose to \code{read.csv},
-#' except that the rules for splitting input lines into columns are
-#' much more flexible.  Any format which can be described by a regular
-#' expression with named fields can be handled.  For example, logfile
-#' messages often contain extra text and variable field positions
-#' which prevent direct use of functions like \code{read.csv} or \code{scan}
-#' to extract what is really just a dataframe with syntactic sugar.
+#'     except that the rules for splitting input lines into columns
+#'     are much more flexible.  Any format which can be described by a
+#'     regular expression with named fields can be handled.  For
+#'     example, logfile messages often contain extra text and variable
+#'     field positions which prevent direct use of functions like
+#'     \code{read.csv} or \code{scan} to extract what is really just a
+#'     dataframe with syntactic sugar.
 #'
 #' For example, if input lines look like this:
 #'
@@ -57,38 +63,45 @@
 #'
 #' @author John Brzustowski \email{jbrzusto@@REMOVE_THIS_PART_fastmail.fm}
 
-splitToDF = function(rx, s, guess=TRUE, ...) {
+splitToDF = function(rx, s, namedOnly=TRUE, guess=TRUE, ...) {
 
-    rv = NULL
-
-    v = gregexpr(rx, s, perl=TRUE)
+    v = regexpr(rx, s, perl=TRUE)
 
     ## non-trivial result
     if (length(v) > 0) {
         ## get the names of captured fields
-        nm = attr(v[[1]], "capture.names")
+        nm = attr(v, "capture.names")
+
+        ## drop unnamed fields if required
+
+        keep = if (namedOnly) nm != "" else TRUE
+        nm = nm[keep]
 
         ## allocate a return value list 
         rv = vector("list", length(nm))
 
         ## get starting positions and lengths for each match in each item
         ## Note that rows correspond to named fields, columns to items of s.
-        starts = matrix(sapply(v, function(w) attr(w, "capture.start")), nrow = length(nm))
-        lengths = matrix(sapply(v, function(w) attr(w, "capture.length")), nrow = length(nm))
-
-        ## for each named field, extract the matched region of each item of s
+        ## Apparent R bug: the capture.start and capture.length attributes
+        ## are 1 x n matrices, not named vectors or lists.
+        starts = attr(v, "capture.start")[,keep]
+        lengths = attr(v, "capture.length")[, keep]
+        
+        ## for each field, extract the matched region of each item of s
         for (i in seq(along=nm))
-            rv[[i]] = substring(s, starts[i, ], starts[i, ] + lengths[i, ] - 1)
+            rv[[i]] = substring(s, starts[, i], starts[, i] + lengths[, i] - 1)
 
-        if (guess)
+        if (guess) {
             ## guess column types via read.csv()
             rv = read.csv(textConnection(do.call(paste, c(rv, sep=","))), header=FALSE, ...)
-        else
+        } else {
             ## preserve columns as strings
             rv = as.data.frame(rv, stringsAsFactors=FALSE)
-        
+        }
         ## assign column names
         names(rv) = nm
+    } else {
+        rv = NULL
     }
     return (rv)
 }
