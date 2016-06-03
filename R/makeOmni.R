@@ -6,7 +6,8 @@
 #' @param pos 3-element antenna position vector (x, y, z)
 #' 
 #' @param axis 3-element antenna orientation axis (x, y, z). This
-#' points along the antenna.
+#' points along the antenna.  See \code{\link{makeAxis}}, for other forms
+#' in which you can specify this parameter.
 #'
 #' @references \url{http://en.wikipedia.org/wiki/Dipole_antenna#Half-wave_dipole}
 #'
