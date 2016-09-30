@@ -157,5 +157,5 @@ readDTA = function(filename="", lines=NULL) {
   ## (why are GPS fixes intermittent? weird...)
   
   tags = tags[order(tags$ts),]
-  return (list(tags=tags, recv = paste(model, serno, sep="-"), pieces=pieces, piece.lines.before=piece.lines.before))
+  return (list(tags=tags, recv = paste0("Lotek-", serno), pieces=pieces, piece.lines.before=piece.lines.before))
 }
