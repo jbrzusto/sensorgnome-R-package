@@ -44,6 +44,11 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time()), p
         }
     }
 
+    if (any(is.na(rangex))) {
+        tt = a$pulse.counts$ts
+        tt = tt [ tt >= ymd("2010-01-01")]
+        rangex = range(tt)
+    }
     png(pngFile, width = 300 + diff(rangex) * 30, height = 600, type="cairo-png")
     yy = hour(a$files.per.hour$ts)
     
@@ -77,11 +82,12 @@ plotOperatingStatus = function(site, proj, year = lubridate::year(Sys.time()), p
     if (! is.null(pc)) {
         pc = pc[grep("^[a-z][0-9]{1,2}$", pc$pcode, perl=TRUE),]
         pc$n = as.integer(as.factor(pc$pcode))
+        pc$n[pc$n > 6] = 6
         pc$col = cols[pc$n]
         pc$x1 = trunc(pc$ts, "day") + (pc$n - 1) * 3600 * 4
         pc$y1 = hour(pc$ts)
         rect(pc$x1, pc$y1, pc$x1+3600*4, pc$y1+1, col=pc$col, border=NA)
-        legend(rangex[1] - 30*3600, 12, fill=cols, border=cols, legend=substring(levels(as.factor(pc$pcode)), 2), title="Ant #", bty="n")
+        legend("topleft", fill=cols, border="black", legend=substring(levels(as.factor(pc$pcode)), 2), title="Ant #", bty="n")
     }
     dev.off()
     
