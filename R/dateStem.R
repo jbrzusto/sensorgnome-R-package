@@ -1,16 +1,24 @@
 #' Get the common portion of a range of dates.
 #'
 #' For a sequence of POSIXct or POSIXt date/times, return a string summarizing
-#' the constant portion of the range; ie. that shared among all dates. 
+#' the constant portion of the range; ie. that shared among all dates.
+#' The main purpose of this is to provide additional information for xyplot()s
+#' that don't have enough detail on the time axis to let you know what period
+#' of time you're looking at.  For this reason, one extra component is included
+#' when dates cross a unit boundary, but span less than a unit; e.g. if the
+#' date range goes overnight, but isn't a full day in size.
 #' 
 #' @param dates vector of POSIXct or POSIXt date/times
 #' 
-#' @param formats character vector; formatting strings compatible with \code{strftime} and \code{lubridate};
-#'        the n-th element is the format string to use if the first date/time component which varies among
-#'        \code{dates} is \code{n}.  The last element of this vector is used if the range of dates
-#'        agrees among more leading components than formats.  Defaults to:
-#'        c("", "%Y", "%Y %b", "%Y %b %d", "%Y %b %d, %I %p", "%Y %b %d, %I%M %p", "%Y %b %d, %I:%M:%S %p")
-#'        which might only make sense for locales that use a 12-hour clock.
+#' @param formats character vector; formatting strings compatible with
+#'     \code{strftime} and \code{lubridate}; the n-th element is the
+#'     format string to use if the first date/time component which
+#'     varies among \code{dates} is \code{n}.  The last element of
+#'     this vector is used if the range of dates agrees among more
+#'     leading components than formats.  Defaults to: c("", "%Y",
+#'     "%Y %b", "%Y %b %d", "%Y %b %d, %I %p", "%Y %b %d, %I%M %p",
+#'     "%Y %b %d, %I:%M:%S %p") which might only make sense for
+#'     locales that use a 12-hour clock.
 #'
 #' @return character scalar; this is earliest element of \code{dates}, formatted with the \code{n}-th element
 #' of \code{formats}, where $code{n} is the index of the first date/time component that varies among \code{dates};
@@ -45,10 +53,15 @@ dateStem = function(dates, formats=c("", "%Y", "%Y %b", "%Y %b %d", "%Y %b %d, %
 
     parts = as.POSIXlt(c(b, e))
 
-    n = which(lapply(unclass(parts)[c("year", "mon", "mday", "hour", "min", "sec")], diff) != 0)[1]
+    ## difference in date components
+    diffs = lapply(unclass(parts)[c("year", "mon", "mday", "hour", "min", "sec")], diff)
+    n = which(diffs != 0)[1]
 
-    if (is.na(n) || n > length(formats))
+    if (is.na(n) || n > length(formats)) {
         n = length(formats)
+    } else if (n < length(formats) & diffs[n] == 1) {
+        n = n + 1
+    }
 
     ## work around annoying behaviour of format(DATE, FMT), when FMT is ""
     return(if (nchar(formats[n]) > 0) format(b, formats[n]) else "")
