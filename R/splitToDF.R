@@ -1,14 +1,13 @@
-#' Use a regular expression to extract fields from each item of
-#' character vector, and return these in a data.frame.
-#' 
+#' Read a data.frame from a character vector according to a regular expression.
+#'
 #' Read a dataframe from a character vector, using a regular
-#' expression with named fields to extract values from each item.  The
-#' named fields become columns in the result, and each item in the
-#' input vector yields a row in the result.
-#' 
+#' expression with named fields to extract values from matching items.  The
+#' named fields become columns in the result, and each matching item in the
+#' input yields a row in the result.
+#'
 #' @param rx: Perl-type regular expression with named fields, as
 #'     described in \code{?regex}
-#' 
+#'
 #' @param s: character vector.  Each element must match \code{rx},
 #'     i.e.  must have at least one character matching each named
 #'     field in \code{rx}.
@@ -16,19 +15,19 @@
 #' @param namedOnly: if \code{TRUE} (the default), return columns only
 #'     for named subexpressions of the regex.  Otherwise, a column is
 #'     returned for every subexpression.
-#' 
+#'
 #' @param guess: if \code{TRUE} paste the columns together with
 #'     commas, and use read.csv to try return the columns already
 #'     converted to appropriate types, e.g. integer or real. Defaults
 #'     to \code{TRUE}.
-#' 
+#'
 #' @param ...: additional parameters to \code{read.csv()} used when
 #'     \code{guess} is \code{TRUE}.
-#' 
-#' @return a data frame.  Each column is a vector and corresponds to a
-#'     named field in \code{rx}, going from left to right.  Each item
-#'     of \code{s} contributes the corresponding row of the return
-#'     value.  If no items of \code{s} match \code{rx}, the function
+#'
+#' @return a data.frame.  Each column is a vector and corresponds to a
+#'     named field in \code{rx}, going from left to right.  Each row in
+#'     the data.frame corresponds to an item in \code{s} which matches \code{rx}.
+#'     If no items of \code{s} match \code{rx}, the function
 #'     returns \code{NULL}.  If \code{guess} is \code{TRUE}, columns
 #'     have been converted to their guessed types.
 #'
@@ -37,27 +36,33 @@
 #'     are much more flexible.  Any format which can be described by a
 #'     regular expression with named fields can be handled.  For
 #'     example, logfile messages often contain extra text and variable
-#'     field positions which prevent direct use of functions like
-#'     \code{read.csv} or \code{scan} to extract what is really just a
-#'     dataframe with syntactic sugar.
+#'     field positions and interspersed unrelated messages which
+#'     prevent direct use of functions like \code{read.csv} or
+#'     \code{scan} to extract what is really just a dataframe with
+#'     syntactic sugar and interleaved junk.
 #'
 #' For example, if input lines look like this:
-#'
+#' \preformatted{
 #' s = c( "Mar 10 06:25:11 SG [62442.231077] pps-gpio: PPS @@ 1425968711.000018004: pre_age = 163, post_age = 1130",
+#'        "Mar 10 06:25:11 SG [62442.23108] usb-debug: device 45 disconnected",
 #'        "Mar 10 06:25:12 SG [62443.2311] pps-gpio: PPS @@ 1425968712.000011015: pre_age = 1055, post_age = 11655",
+#'        "Mar 10 06:25:13 SG [62444.2] dbus[2872]: [system] Successfully activated service 'org.freedesktop.PackageKit'
 #'        "Mar 10 06:25:13 SG [62444.23] pps-gpio: PPS @@ 1425968713.000011275: pre_age = 160, post_age = 12120" )
-#' 
-#' and we wish to extract timestamps and pre_age and post_age, as a
+#' }
+#'
+#' and we wish to extract timestamps and pre_age and post_age from the pps-gpio messages as a
 #' data.frame, we can use this regular expression:
+#' \preformatted{
+#' rx = "pps-gpio: PPS @@ (?<ts>[0-9]+\\\\.[0-9]*): pre_age = (?<preAge>[0-9]+), post_age = (?<postAge>[0-9]+)"
+#' }
 #'
-#' rx = "pps-gpio: PPS @ (?<ts>[0-9]+\\.[0-9]*): pre_age = (?<pre>[0-9]+), post_age = (?<post>[0-9]+)"
-#'
-#' splitToDF(s, rx) then gives:
-#' 
+#' splitToDF(rx, s) then gives:
+#' \preformatted{
 #'           ts preAge postAge
-#' 1 1425968711  16320   17130
-#' 2 1425968712  11055   11655
-#' 3 1425968713  11160   12120
+#' 1 1425968711    163    1130
+#' 2 1425968712   1055   11655
+#' 3 1425968713    160   12120
+#' }
 #'
 #' where the first column is numeric and others are integer.
 #'
@@ -66,30 +71,29 @@
 splitToDF = function(rx, s, namedOnly=TRUE, guess=TRUE, ...) {
 
     v = regexpr(rx, s, perl=TRUE)
+    keepRow = which(attr(v, "match.length") > 0)
 
     ## non-trivial result
-    if (length(v) > 0) {
+    if (length(keepRow) > 0) {
         ## get the names of captured fields
         nm = attr(v, "capture.names")
 
         ## drop unnamed fields if required
 
-        keep = if (namedOnly) nm != "" else TRUE
-        nm = nm[keep]
+        keepCol = if (namedOnly) nm != "" else TRUE
+        nm = nm[keepCol]
 
-        ## allocate a return value list 
+        ## allocate a return value list
         rv = vector("list", length(nm))
 
         ## get starting positions and lengths for each match in each item
         ## Note that rows correspond to named fields, columns to items of s.
-        ## Apparent R bug: the capture.start and capture.length attributes
-        ## are 1 x n matrices, not named vectors or lists.
-        starts = attr(v, "capture.start")[,keep]
-        lengths = attr(v, "capture.length")[, keep]
-        
+        starts = attr(v, "capture.start")[keepRow, keepCol]
+        lengths = attr(v, "capture.length")[keepRow, keepCol]
+
         ## for each field, extract the matched region of each item of s
         for (i in seq(along=nm))
-            rv[[i]] = substring(s, starts[, i], starts[, i] + lengths[, i] - 1)
+            rv[[i]] = substring(s[keepRow], starts[, i], starts[, i] + lengths[, i] - 1)
 
         if (guess) {
             ## guess column types via read.csv()
@@ -105,4 +109,3 @@ splitToDF = function(rx, s, namedOnly=TRUE, guess=TRUE, ...) {
     }
     return (rv)
 }
-
