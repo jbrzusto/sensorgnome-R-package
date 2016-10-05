@@ -33,7 +33,7 @@
 
 sgListFiles = function(page, userpw) {
     URL = sprintf("https://sensorgnome.org/@api/deki/pages/=%s/files",
-                  URLencode(URLencode(page, TRUE), TRUE))
+                  URLencode(URLencode(page, TRUE, TRUE), TRUE, TRUE))
     x = getURL(URL, userpw=userpw)
     fileInfo = data.frame(name=character(0), id=integer(0), revision=integer(0), size=numeric(0), stringsAsFactors = FALSE)
     xmlParse(x, handlers=list(
